@@ -1,0 +1,159 @@
+
+* {
+    -moz-box-sizing: border-box;
+}
+body {
+    background-color: #1E8CBE;
+    color: #444444;
+    font-family: 'Open Sans','Helvetica Neue',sans-serif;
+    font-weight: normal;
+    margin: 0;
+    padding: 0;
+}
+body.connected {
+    background-color: #F1F1F1;
+}
+body.error, body.noproxied {
+    background-color: #BE4444;
+    color: #FFFFFF;
+    font-size: 18px;
+    padding-top: 50px;
+    text-align: center;
+    text-transform: uppercase;
+}
+body strong {
+    font-weight: 400;
+}
+h1 {
+    color: #404040;
+    font-size: 1.5em;
+    font-weight: 200;
+}
+h2 {
+    color: #444444;
+    font-size: 18px;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+ul {
+    padding: 0;
+}
+h1.error {
+    color: #78BAD8;
+    font-size: 120px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-align: center;
+}
+.proxy-msg {
+    color: #78BAD8;
+    display: table;
+    font-size: 70px;
+    font-weight: 700;
+    line-height: 70px;
+    margin: 0 auto;
+    text-align: center;
+    text-transform: uppercase;
+    width: 200px;
+}
+p.proxy-msg {
+    display: table-cell;
+    vertical-align: middle;
+}
+span.calm {
+    font-size: 30px;
+    position: relative;
+    top: -8px;
+}
+p.error-msg {
+    color: #FFFFFF;
+    font-family: merriweather;
+    line-height: 1.5em;
+    margin: 0 auto;
+    max-width: 600px;
+    padding: 0 40px;
+}
+input[type="text"], input[type="button"] {
+    display: inline-block;
+    height: 26px;
+    line-height: 26px;
+    margin: 0 5px;
+    padding: 0 5px;
+}
+input[type="text"] {
+    border: 1px solid rgba(0, 0, 0, 0.5);
+}
+.icon {
+    position: relative;
+}
+.icon:before {
+    -moz-osx-font-smoothing: grayscale;
+    content: "";
+    display: inline-block;
+    font: 16px/1 'dashicons';
+    position: absolute;
+    vertical-align: middle;
+}
+.icon.arrow-down-2:before {
+    content: "";
+}
+.icon.wp:before {
+    content: "";
+}
+.proxy {
+    background-color: rgba(0, 0, 0, 0);
+    background-image: url("https://i.cloudup.com/0Fol42OStS.png");
+    background-repeat: no-repeat;
+    background-size: contain;
+    border: 0 none;
+    display: inherit;
+    height: 122px;
+    margin: 80px auto 0;
+    outline: 0 none;
+    text-align: center;
+    width: 134px;
+}
+
+
+
+#content {
+    color: #FFFFFF;
+}
+#content .wp-logo:before {
+    font-size: 165px;
+}
+#content .wp-logo {
+    color: #78BAD8;
+    height: 168px;
+    margin: 150px auto 50px;
+    width: 168px;
+}
+#content p.welcome {
+    font-size: 16px;
+    font-weight: 100;
+    letter-spacing: 0.02em;
+    text-align: center;
+}
+#content .sign-button a {
+    color: #FFFFFF;
+    display: inline-block;
+    font-size: 12px;
+    height: 50px;
+    letter-spacing: 1px;
+    line-height: 50px;
+    margin: 100px auto 0;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+#content .sign-button {
+    text-align: center;
+}
+
+
+.error {
+    background-color: red;
+    color: white;
+    text-align: center;
+    padding: 10px;
+}
