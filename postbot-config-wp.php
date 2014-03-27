@@ -15,7 +15,7 @@ define( 'POSTBOT_THUMBNAIL_SIZE', 150 ); // Note this is the size on screen. A r
  * Where Postbot lives
  */
 define( 'BASE_URL', '/postbot/' );
-define( 'SCHEDULE_URL', BASE_URL.'scheduler.php' );
+define( 'SCHEDULE_URL', BASE_URL );
 define( 'PENDING_URL', BASE_URL.'pending.php' );
 
 /**
