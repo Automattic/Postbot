@@ -9,7 +9,7 @@ CREATE TABLE `postbot_auto` (
   PRIMARY KEY (`pending_id`),
   UNIQUE KEY `media_id` (`media_id`),
   KEY `user_id` (`user_id`)
-);
+) CHARSET=utf8;
 
 CREATE TABLE `postbot_blogs` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -21,7 +21,7 @@ CREATE TABLE `postbot_blogs` (
   `access_token` varchar(200) DEFAULT '',
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`,`blog_id`)
-);
+) CHARSET=utf8;
 
 CREATE TABLE `postbot_errors` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -32,7 +32,7 @@ CREATE TABLE `postbot_errors` (
   `line` int(11) NOT NULL,
   `data` text,
   PRIMARY KEY (`id`)
-);
+) CHARSET=utf8;
 
 CREATE TABLE `postbot_photos` (
   `media_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -51,7 +51,7 @@ CREATE TABLE `postbot_photos` (
   KEY `user_id` (`user_id`,`scheduled_at`),
   KEY `scheduled_at` (`scheduled_at`),
   KEY `posted_id` (`posted_id`)
-);
+) CHARSET=utf8;
 
 CREATE TABLE `postbot_posts` (
   `posted_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -64,7 +64,7 @@ CREATE TABLE `postbot_posts` (
   `media_url` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`posted_id`),
   KEY `user_id` (`user_id`,`publish_date`)
-);
+) CHARSET=utf8;
 
 CREATE TABLE `postbot_users` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -78,4 +78,4 @@ CREATE TABLE `postbot_users` (
   `last_posted_blog_id` bigint(20) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`)
-);
+) CHARSET=utf8;
