@@ -126,13 +126,13 @@ class Postbot_Photo {
 		return $this->media_type;
 	}
 
-	public function get_thumnail_name() {
+	public function get_thumbnail_name() {
 		$parts = pathinfo( $this->stored_name );
 		return $parts['filename'].'-thumb.'.$parts['extension'];
 	}
 
 	public function get_thumbnail_url() {
-		return postbot_photo_url( $this->get_thumnail_name() );
+		return postbot_photo_url( $this->get_thumbnail_name() );
 	}
 
 	public function get_thumbnail_img() {
@@ -230,7 +230,7 @@ class Postbot_Photo {
 	public function delete() {
 		global $wpdb;
 
-		if ( postbot_delete_photo( $this->stored_name ) && postbot_delete_photo( $this->get_thumnail_name() ) ) {
+		if ( postbot_delete_photo( $this->stored_name ) && postbot_delete_photo( $this->get_thumbnail_name() ) ) {
 			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->postbot_photos} WHERE media_id=%d AND user_id=%d", $this->media_id, $this->user_id ) );
 			return true;
 		}

@@ -23,7 +23,7 @@ $photo = Postbot_Photo::get_by_stored_name( $filename );
 if ( $photo && $photo->get_user_id() === $user->get_user_id() ) {
 	$stored_name = $photo->get_stored_name();
 	if ( $is_thumbnail ) {
-		$stored_name = $photo->get_thumnail_name();
+		$stored_name = $photo->get_thumbnail_name();
 	}
 
 	$local_name = postbot_get_photo( $stored_name );

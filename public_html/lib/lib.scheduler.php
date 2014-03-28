@@ -661,7 +661,7 @@ class Postbot_Pending {
 		return $this->posted_id;
 	}
 
-	private function get_thumnail_name() {
+	private function get_thumbnail_name() {
 		$parts = pathinfo( $this->stored_name );
 		if ( count( $parts ) > 0 && isset( $parts['extension'] ) )
 			return $parts['filename'].'-thumb.'.$parts['extension'];
@@ -669,7 +669,7 @@ class Postbot_Pending {
 	}
 
 	public function get_thumbnail_url() {
-		return postbot_photo_url( $this->get_thumnail_name() );
+		return postbot_photo_url( $this->get_thumbnail_name() );
 	}
 
 	public function get_thumbnail_img() {
