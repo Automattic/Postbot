@@ -72,6 +72,7 @@ $scripts_js  = postbot_bundled_javascript();
 <head>
 	<title><?php _e( 'Postbot' ); ?></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1"/>
+	<meta charset="UTF-8" />
 	<link rel="icon" href="favicon.ico">
 	<link rel="apple-touch-icon-precomposed" href="apple-touch-icon.png" sizes="512x512" />
 

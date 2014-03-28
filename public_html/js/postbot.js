@@ -90,7 +90,7 @@ function slow_publish_schedule( pos ) {
 }
 
 function show_published_item( item ) {
-	$( '#schedule-progress ul' ).append( '<li><a target="_blank" href="' + item.url + '">' + sanitize_string( item.title ) + '</a></li>' );
+	$( '#schedule-progress ul' ).append( '<li><a target="_blank" href="' + item.url + '">' + sanitize_string( decode_entities( item.title ) ) + '</a></li>' );
 }
 
 function disable_form_elements( status ) {

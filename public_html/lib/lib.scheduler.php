@@ -97,7 +97,8 @@ class Postbot_Post {
 		if ( empty( $this->post_data['title'] ) )
 			$this->post_data['title'] = __( 'Photo' );
 
-		array_map( 'trim', $this->post_data );
+		$this->post_data = array_map( 'trim', $this->post_data );
+		$this->post_data = array_map( 'stripslashes', $this->post_data );
 	}
 
 	public function create_new_post( $access_token, $time, Postbot_Photo $media ) {
@@ -307,7 +308,7 @@ class Postbot_Scheduler {
 				$wpdb->update( $wpdb->postbot_photos, array( 'scheduled_at' => current_time( 'mysql' ), 'posted_id' => $posted_id ), array( 'media_id' => $media_id ) );
 
 				$result['media_id'] = $media_id;
-				$scheduled[] = $result;
+				$scheduled[] = array_map( 'stripslashes', $result );
 
 				$pos++;
 			}
@@ -652,6 +653,7 @@ class Postbot_Pending {
 				$this->$name = $value;
 		}
 
+		$this->title = stripslashes( $this->title );
 		$this->publish_date = mysql2date( 'U', $this->publish_date );
 	}
 
