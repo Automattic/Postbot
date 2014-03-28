@@ -105,7 +105,7 @@ function show_error_message( message ) {
 function schedule_changed() {
 	var data = {
 		action:         'postbot_get_dates',
-		date:           parseInt( $( 'input[name=schedule_date]' ).val(), 10 ),
+		date:           $( 'input[name=schedule_date]' ).val(),
 		hour:           parseInt( $( 'input[name=schedule_time_hour]').val(), 10 ),
 		minute:         parseInt( $( 'input[name=schedule_time_minute]').val(), 10 ),
 		interval:       parseInt( $( 'select[name=schedule_interval]' ).val(), 10 ),
@@ -233,7 +233,7 @@ function setup_uploader() {
 			action:         'postbot_uploading',
 			nonce:          postbot.nonce,
 			files:          [],
-			date:           parseInt( $( 'input[name=schedule_date]' ).val(), 10 ),
+			date:           $( 'input[name=schedule_date]' ).val(),
 			hour:           parseInt( $( 'input[name=schedule_time_hour]').val(), 10 ),
 			minute:         parseInt( $( 'input[name=schedule_time_minute]').val(), 10 ),
 			interval:       parseInt( $( 'select[name=schedule_interval]' ).val(), 10 ),
@@ -346,11 +346,10 @@ jQuery( document ).ready( function($) {
 	} );
 
 	$( 'input[name=schedule_date]' ).datepicker( {
-		dateFormat: '@',
+		dateFormat: 'yy-mm-dd',
 		minDate: 0,
 		maxDate: 90,
 		onClose: function() {
-			$( 'input[name=schedule_date]' ).val( parseInt( $( 'input[name=schedule_date]' ).val(), 10 ) / 1000 );
 			schedule_changed();
 		}
 	} );

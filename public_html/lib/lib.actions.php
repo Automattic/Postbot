@@ -90,7 +90,7 @@ function handle_authorize_blog( Postbot_User $user ) {
 
 function handle_pre_upload( Postbot_User $user, array $media_items ) {
 	$interval = intval( $_POST['interval'] );
-	$time     = intval( $_POST['date'] );
+	$time     = intval( strtotime( $_POST['date'] ) );
 	$ignore   = false;
 
 	if ( isset( $_POST['ignore_weekend'] ) && intval( $_POST['ignore_weekend'] ) === 1 )
@@ -149,7 +149,7 @@ function handle_delete_item( Postbot_User $user ) {
 function handle_get_dates( Postbot_User $user ) {
 	$total    = intval( $_POST['total'] );
 	$interval = intval( $_POST['interval'] );
-	$time     = intval( $_POST['date'] );
+	$time     = intval( strtotime( $_POST['date'] ) );
 
 	// AJAX handler for updating schedule times
 	if ( wp_verify_nonce( $_POST['nonce'], 'scheduler' ) ) {

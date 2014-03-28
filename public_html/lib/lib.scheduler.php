@@ -6,7 +6,7 @@ class Postbot_Time {
 
 	private $start_date;
 	private $interval;
-	private $ignore_weekend;
+	private $ignore_weekend = false;
 
 	public function __construct( $start_date, $interval, $ignore_weekend = false ) {
 		$interval = intval( $interval );
@@ -283,7 +283,7 @@ class Postbot_Scheduler {
 	public function post_media( Postbot_User $user, Postbot_Blog $blog, array $data, array $media_items ) {
 		global $wpdb;
 
-		$start_date = Postbot_Time::get_start_time( $data['schedule_date'], $data['schedule_time_hour'], $data['schedule_time_minute'] );
+		$start_date = Postbot_Time::get_start_time( strtotime( $data['schedule_date'] ), $data['schedule_time_hour'], $data['schedule_time_minute'] );
 		$scheduled  = array();
 		$skip       = isset( $data['ignore_weekend'] ) ? true : false;
 		$post_time  = new Postbot_Time( $start_date, $data['schedule_interval'], $skip );
@@ -349,15 +349,16 @@ class Postbot_Scheduler {
 
 	public function schedule_get_dates( $values ) {
 		$total = min( intval( $values['total'] ), POSTBOT_MAX_SCHEDULE );
-		$start = Postbot_Time::get_start_time( $values['date'], $values['hour'], $values['minute'] );
+		$start = Postbot_Time::get_start_time( strtotime( $values['date'] ), $values['hour'], $values['minute'] );
 		$skip  = false;
 		$times = array();
+		$interval = intval( $values['interval'] );
 
 		if ( isset( $values['ignore_weekend'] ) && intval( $values['ignore_weekend'] ) === 1 )
 			$skip = true;
 
 		for ( $loop = 0; $loop < $total; $loop++ ) {
-			$schedule_time = new Postbot_Time( $start, $values['interval'], $skip );
+			$schedule_time = new Postbot_Time( $start, $interval, $skip );
 			$times[] = array( 'date' => $schedule_time->get_as_date( $loop ), 'day' => $schedule_time->get_as_day_of_week( $loop ) );
 		}
 
@@ -587,7 +588,7 @@ class Postbot_Auto extends Postbot_Scheduler {
 	public function store_for_later( Postbot_Blog $blog, array $data, array $media_items ) {
 		global $wpdb;
 
-		$start_date = Postbot_Time::get_start_time( $data['schedule_date'], $data['schedule_time_hour'], $data['schedule_time_minute'] );
+		$start_date = Postbot_Time::get_start_time( strtotime( $data['schedule_date'] ), $data['schedule_time_hour'], $data['schedule_time_minute'] );
 		$skip       = false;
 		$interval   = intval( $data['schedule_interval'] );
 		$post_time  = new Postbot_Time( $start_date, $interval, $skip );
