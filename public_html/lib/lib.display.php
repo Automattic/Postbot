@@ -151,7 +151,7 @@ function get_schedule_item_html( Postbot_Photo $media = null, $time = false, $po
 }
 
 function postbot_bundled_javascript() {
-	if ( postbot_is_live() )
+	if ( postbot_is_live() && file_exists( dirname( dirname( __FILE__ ) ).'/js/compressed.js' ) )
 		return array( 'js/compressed.js?v='.POSTBOT_VERSION );
 
 	$bundled = array(
