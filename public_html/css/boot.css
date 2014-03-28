@@ -89,17 +89,17 @@ input[type="text"] {
 }
 .icon:before {
     -moz-osx-font-smoothing: grayscale;
-    content: "";
+    content: "\f324";
     display: inline-block;
     font: 16px/1 'dashicons';
     position: absolute;
     vertical-align: middle;
 }
 .icon.arrow-down-2:before {
-    content: "";
+    content: "\f324";
 }
 .icon.wp:before {
-    content: "";
+    content: "\f324";
 }
 .proxy {
     background-color: rgba(0, 0, 0, 0);
