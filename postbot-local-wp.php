@@ -16,7 +16,8 @@ function wp_salt() {
 	return POSTBOT_LOGIN_SALT;
 }
 
-include dirname( dirname( __FILE__ ) ) . '/wp-load.php';
+require dirname( dirname( __FILE__ ) ) . '/wordpress/wp-load.php';
+require dirname( dirname( __FILE__ ) ) . '/wordpress/wp-includes/class-phpass.php';
 
 if ( !class_exists( 'WPCOM_OAuth_Bearer_Client' ) )
 	include dirname( __FILE__ ).'/lib/lib.wpcc.php';
@@ -44,12 +45,16 @@ function postbot_crop_photo( $uploaded_file, $width, $height ) {
 	$new_target = tempnam( '/tmp', 'postbot' );
 
 	$image = wp_get_image_editor( $uploaded_file );
-	$image->resize( $width, $height, true );
+	if ( !is_wp_error( $image ) ) {
+		$image->resize( $width, $height, true );
 
-	$saved = $image->save( $new_target );
-	if ( !is_wp_error( $saved ) )
-		return $saved['path'];
-	return $saved;
+		$saved = $image->save( $new_target );
+		if ( !is_wp_error( $saved ) )
+			return $saved['path'];
+		return $saved;
+	}
+
+	return false;
 }
 
 function postbot_store_photo( $uploaded_filename, $target_filename ) {

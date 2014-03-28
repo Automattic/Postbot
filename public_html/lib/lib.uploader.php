@@ -18,7 +18,8 @@ class Postbot_Uploader {
 
 	public function upload_file( $uploaded_name, $uploaded_file ) {
 		$file_size = filesize( $uploaded_file );
-		$uploaded_name = strtolower( $uploaded_name );
+		$uploaded_name = strtolower( sanitize_file_name( $uploaded_name ) );
+		$uploaded_name = str_replace( array( ';', "'", '"' ), '', $uploaded_name );
 
 		$filetype = wp_check_filetype_and_ext( $uploaded_file, $uploaded_name );
 		$type = $filetype['type'];
@@ -121,7 +122,11 @@ class Postbot_Photo {
 		$this->created_at = mysql2date( 'U', $this->created_at );
 	}
 
-	private function get_thumnail_name() {
+	public function get_media_type() {
+		return $this->media_type;
+	}
+
+	public function get_thumnail_name() {
 		$parts = pathinfo( $this->stored_name );
 		return $parts['filename'].'-thumb.'.$parts['extension'];
 	}
@@ -155,7 +160,7 @@ class Postbot_Photo {
 	public static function get_title_from_filename( $filename, $time, $pos ) {
 		$default  = sprintf( __( 'Photo for %s, %s' ), $time->get_as_day_of_week( $pos ), $time->get_as_full_date( $pos ) );
 
-		$filename = preg_replace( '/\.\w*$/', '', $filename );
+		$filename = preg_replace( '/\.\w*$/', '', stripslashes( $filename ) );
 		$filename = str_replace( array( '@' ), ' ', $filename );
 
 		$camera_filenames = array(

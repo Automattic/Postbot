@@ -10,10 +10,23 @@ if ( !$user ) {
 	die();
 }
 
-$photo = Postbot_Photo::get_by_stored_name( $_GET['file'] );
+$is_thumbnail = false;
+$filename     = $_GET['file'];
+
+if ( stripos( $filename, '-thumb' ) !== false ) {
+	$is_thumbnail = true;
+	$filename = str_replace( '-thumb', '', $filename );
+}
+
+$photo = Postbot_Photo::get_by_stored_name( $filename );
 
 if ( $photo && $photo->get_user_id() === $user->get_user_id() ) {
-	$local_name = postbot_get_photo( $photo->get_stored_name() );
+	$stored_name = $photo->get_stored_name();
+	if ( $is_thumbnail ) {
+		$stored_name = $photo->get_thumnail_name();
+	}
+
+	$local_name = postbot_get_photo( $stored_name );
 
 	header( 'Content-Type: '.$photo->get_media_type() );
 	header( 'Content-Length: ' . filesize( $local_name ) );
