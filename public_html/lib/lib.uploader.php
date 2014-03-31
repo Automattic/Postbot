@@ -1,7 +1,7 @@
 <?php
 
 class Postbot_Uploader {
-	const MAX_IMAGE_SIZE = 5200;
+	const MAX_IMAGE_SIZE = 7500;
 
 	private $user_id;
 
@@ -33,7 +33,7 @@ class Postbot_Uploader {
 		$this->file_size     = $file_size;
 		$this->file_type     = $type;
 		$this->original_name = basename( $uploaded_name );
-		$this->stored_name   = sprintf( '%s-%d.%s', md5( $this->user_id.time() ), microtime( true ), strtolower( $filetype['ext'] ) );
+		$this->stored_name   = sprintf( '%s-%d.%s', md5( $this->user_id.$this->original_name.microtime( true ) ), microtime( true ), strtolower( $filetype['ext'] ) );
 
 		// If an image, get some extra details
 		$size = getimagesize( $uploaded_file );
@@ -42,7 +42,7 @@ class Postbot_Uploader {
 		$this->image_height = $size[1];
 
 		if ( $size[0] > self::MAX_IMAGE_SIZE || $size[1] > self::MAX_IMAGE_SIZE )
-			return new WP_Error( 'upload', __( 'Image is too big' ) );
+			return new WP_Error( 'upload', sprintf( __( 'Image dimensions %dx%d exceed our limits of %dx%d' ), $size[0], $size[1], self::MAX_IMAGE_SIZE, self::MAX_IMAGE_SIZE ) );
 		elseif ( $this->file_size == 0 )
 			return new WP_Error( 'upload', __( 'Image has no size' ) );
 
@@ -65,7 +65,10 @@ class Postbot_Uploader {
 			$wpdb->insert( $wpdb->postbot_photos, $media_data );
 
 			$this->create_thumbnail( $uploaded_file, POSTBOT_THUMBNAIL_SIZE * 2, POSTBOT_THUMBNAIL_SIZE * 2 );
-			return Postbot_Photo::get_by_id( $wpdb->insert_id );
+			$result = Postbot_Photo::get_by_id( $wpdb->insert_id );
+
+			if ( $result )
+				return $result;
 		}
 
 		postbot_log_error( $this->user_id, 'Unable to store photo' );
