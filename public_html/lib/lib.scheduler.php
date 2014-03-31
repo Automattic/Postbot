@@ -108,7 +108,7 @@ class Postbot_Post {
 		$local_copy = postbot_get_photo( $media->get_stored_name() );
 		if ( $local_copy ) {
 			$post_data = array_merge( $this->post_data, array(
-				'date'    => date( 'Y-m-dTH:i:s', $time ),
+				'date'    => date( 'Y-m-d\TH:i:s', $time ),
 				'media[]' => '@'.$local_copy.';filename='.$media->get_filename(),
 			) );
 
