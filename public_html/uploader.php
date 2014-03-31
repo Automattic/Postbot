@@ -16,9 +16,9 @@ if ( isset( $_POST['nonce'] ) && wp_verify_nonce( $_POST['nonce'], 'scheduler' )
 		$existing = Postbot_Photo::get_for_user( $user->user_id );
 
 		if ( count( $existing ) + 1 > POSTBOT_MAX_SCHEDULE )
-			$result = array( 'error' => __( 'You have reached the limit for the number of photos that can be scheduled in one go. Finish these off and do the rest later!' ) );
+			$result = array( 'error' => __( 'Schedule limit reached. You will need to schedule the rest afterwards.' ), 'continue_uploading' => false );
 		elseif ( filesize( $_FILES['media']['tmp_name'] ) > POSTBOT_MAX_UPLOAD * 1024 * 1024 )
-			$result = array( 'error' => __( 'Your file is larger than the maximum allowed size.' ) );
+			$result = array( 'error' => __( 'Your file is larger than the maximum allowed size.' ), 'continue_uploading' => true );
 		else {
 			$uploader  = new Postbot_Uploader( $user->user_id );
 			$scheduler = new Postbot_Scheduler();
@@ -28,17 +28,17 @@ if ( isset( $_POST['nonce'] ) && wp_verify_nonce( $_POST['nonce'], 'scheduler' )
 				$result = array( 'item' => get_schedule_item_html( $media ), 'id' => $media->get_id(), 'img' => $media->get_thumbnail_url(), 'nonce' => wp_create_nonce( 'scheduler-delete-'.$media->get_id() ) );
 			else {
 				postbot_log_error( $user->get_user_id(), 'Unable to store uploaded file - '.$media->get_error_message(), print_r( $_FILES, true ) );
-				$result = array( 'error' => $media->get_error_message() );
+				$result = array( 'error' => $media->get_error_message(), 'continue_uploading' => true );
 			}
 		}
 	}
 	else {
-		$result = array( 'error' => __( 'Not a valid upload - please try another file' ) );
+		$result = array( 'error' => __( 'Not a valid upload - please try another file' ), 'continue_uploading' => true );
 		postbot_log_error( $user->get_user_id(), 'Invalid upload', print_r( $_FILES, true ) );
 	}
 }
 else {
-	$result = array( 'error' => __( 'Unable to perform action. Please refresh your browser and try again.' ) );
+	$result = array( 'error' => __( 'Unable to perform action. Please refresh your browser and try again.' ), 'continue_uploading' => false );
 	postbot_log_error( $user->get_user_id(), 'Invalid nonce check uploading', print_r( $_FILES, true ) );
 }
 

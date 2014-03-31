@@ -1,5 +1,43 @@
 var uploader;
 
+var Postbot_Error = function() {
+	var errors = [];
+	var api = {};
+
+	api.add = function( error_message ) {
+		errors[errors.length] = error_message;
+		show();
+		return this;
+	};
+
+	api.reset = function() {
+		errors = [];
+		$( '#message' ).hide();
+	};
+
+	var show = function() {
+		var message = '';
+
+		if ( errors.length == 1 )
+			message = sanitize_string( errors[0] );
+		else {
+			message = '<ul>';
+
+			for ( var pos = 0; pos < errors.length; pos++ ) {
+				message += '<li>' + sanitize_string( errors[pos] ) + '</li>';
+			}
+
+			message += '</ul>';
+		}
+
+		$( '#message' ).html( message ).show();
+	};
+
+	return api;
+};
+
+var postbot_error = Postbot_Error();
+
 function update_body_class() {
 	var count = $( '.schedule-item' ).length;
 	var klass = 'media-items-multiple';
@@ -63,7 +101,8 @@ function slow_publish_schedule( pos ) {
 			if ( result.error ) {
 				$( '#schedule-progress' ).modal( 'hide' );
 
-				show_error_message( result.error );
+				postbot_error.add( result.error );
+
 				disable_form_elements( false );
 				return;
 			}
@@ -98,10 +137,6 @@ function disable_form_elements( status ) {
 	$( '#pick-files' ).prop( 'disabled', status );
 }
 
-function show_error_message( message ) {
-	$( '#message' ).text( sanitize_string( message ) ).show();
-}
-
 function schedule_changed() {
 	var data = {
 		action:         'postbot_get_dates',
@@ -116,7 +151,7 @@ function schedule_changed() {
 
 	$.post( postbot.ajax_url, data, function( response ) {
 		if ( response.error ) {
-			show_error_message( response.error );
+			postbot_error.add( response.error );
 			disable_form_elements( false );
 		}
 		else {
@@ -134,7 +169,7 @@ function show_pending_upload( upload, file ) {
 	var preloader = new mOxie.Image();
 	var item_id = '#media-item-' + sanitize_string( upload.id );
 
-	$( 'ul.schedule-list' ).append( upload.html );
+	$( 'ul.schedule-list' ).append( upload.html.replace( /"schedule-item"/, '"schedule-item pending-upload"') );
 
 	preloader.onload = function() {
 		var width = Math.min( postbot.thumbnail_size * 2, preloader.width );
@@ -147,9 +182,10 @@ function show_pending_upload( upload, file ) {
 	preloader.load( file.getSource() );
 }
 
-function remap_uploaded_item( old_id, new_id, nonce ) {
+function remap_uploaded_item( old_id, new_id, nonce, proper_thumb ) {
 	var old = $( '#media-item-' + old_id );
 
+	old.removeClass( 'pending-upload' );
 	old.data( 'media-id', new_id );
 	old.attr( 'id', 'media-item-' + new_id );
 	old.find( '.schedule-thumb img' ).removeClass( 'pending-upload' );
@@ -163,6 +199,14 @@ function remap_uploaded_item( old_id, new_id, nonce ) {
 		$( item ).attr( 'for', replace );
 		input.attr( 'id', replace ).attr( 'name', input.attr( 'name' ).replace( old_id, new_id ) );
 	} );
+
+	// Replace thumbnail
+	var thumb = new Image();
+	thumb.onload = function() {
+		old.find( '.schedule-thumb img' ).attr( 'src', proper_thumb );
+	};
+
+	thumb.src = proper_thumb;
 }
 
 function setup_uploader() {
@@ -241,7 +285,7 @@ function setup_uploader() {
 		};
 
 		disable_form_elements( true );
-		$( '#message' ).hide();
+		postbot_error.reset();
 
 		plupload.each( files, function( file ) {
 			data.files[data.files.length] = {
@@ -255,7 +299,7 @@ function setup_uploader() {
 
 		$.post( postbot.ajax_url, data, function( response ) {
 			if ( response.error ) {
-				show_error_message( response.error );
+				postbot_error.add( response.error );
 				disable_form_elements( false );
 				return;
 			}
@@ -273,9 +317,7 @@ function setup_uploader() {
 
 	uploader.bind( 'UploadComplete', function( uploader, files ) {
 		// Remove any files that failed
-		for ( var pos = 0; pos < files.length; pos++ ) {
-			$( '#media-item-' + files[pos].id ).remove();
-		}
+		$( '.schedule-list .pending-upload' ).remove();
 
 		$( 'body' ).removeClass( 'uploading' );
 
@@ -292,10 +334,15 @@ function setup_uploader() {
 
 			if ( response.error ) {
 				$( '#media-item-' + file.id ).remove();
-				show_error_message( response.error );
+				postbot_error.add( file.name + ' - ' + response.error );
+
+				if ( !response.continue_uploading ) {
+					uploader.stop();
+					uploader.trigger( 'UploadComplete', uploader, uploader.files );
+				}
 			}
 			else
-				remap_uploaded_item( file.id, response.id, response.nonce );
+				remap_uploaded_item( file.id, response.id, response.nonce, response.img );
 
 			update_body_class();
 		}
@@ -308,7 +355,8 @@ function setup_uploader() {
 			error_message += ' ' + error.status;
 
 		// Remove upload & show error
-		show_error_message( error_message );
+		postbot_error.add( error_message );
+		uploader.stop();
 	} );
 }
 
@@ -335,7 +383,7 @@ jQuery( document ).ready( function($) {
 		$.post( postbot.ajax_url, data, function( response ) {
 			if ( response.error ) {
 				disable_form_elements( false );
-				return show_error_message( response.error );
+				return postbot_error.add( response.error );
 			}
 
 			$( 'input[type=submit]' ).val( decode_entities( response.button ) );
@@ -372,12 +420,12 @@ jQuery( document ).ready( function($) {
 	} );
 
 	$( 'input[name=ignore_weekend]' ).on( 'click', function() {
-		$( '#message' ).hide();
+		postbot_error.reset();
 		schedule_changed();
 	} );
 
 	$( 'input[type=submit]' ).on( 'click', function( e ) {
-		$( '#message' ).hide();
+		postbot_error.reset();
 		$( '#confirm-schedule .body-text-1' ).html( postbot.body_text_1 );
 		$( '#confirm-schedule .body-text-2' ).html( postbot.body_text_2 );
 		$( '#schedule-confirmed' ).html( postbot.schedule_text );
@@ -405,13 +453,13 @@ jQuery( document ).ready( function($) {
 
 	$( '#schedule-pick-time' ).on( 'click', function( e ) {
 		$( '#pick-time' ).toggle();
-		$( '#message' ).hide();
+		postbot_error.reset();
 		e.preventDefault();
 	} );
 
 	$( '#pick-time button' ).on( 'click', function( e ) {
 		$( '#pick-time' ).toggle();
-		$( '#message' ).hide();
+		postbot_error.reset();
 		schedule_changed();
 		e.preventDefault();
 	} );
@@ -425,7 +473,7 @@ jQuery( document ).ready( function($) {
 		};
 		var item_to_delete = $( this ).closest( 'li' ).detach();
 
-		$( '#message' ).hide();
+		postbot_error.reset();
 		item_to_delete.hide();
 
 		$.post( postbot.ajax_url, data, function( response ) {
@@ -433,7 +481,7 @@ jQuery( document ).ready( function($) {
 				$( '.schedule-list' ).append( item_to_delete );
 				schedule_changed();
 				update_body_class();
-				return show_error_message( response.error );
+				return postbot_error.add( response.error );
 			}
 		}, 'json' );
 
@@ -443,7 +491,7 @@ jQuery( document ).ready( function($) {
 	} );
 
 	$( '#upload-help' ).on( 'click', function( e ) {
-		$( '#message' ).hide();
+		postbot_error.reset();
 		$( '#pick-files' ).click();
 		e.preventDefault();
 	} );
