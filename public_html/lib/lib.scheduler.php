@@ -231,6 +231,10 @@ class Postbot_Blog {
 	}
 
 	public static function extract_blavatar( $details ) {
+		// Jetpack has no Blavatar yet - return false so we can display a default one
+		if ( $details->jetpack == 1 )
+			return false;
+
 		$blavatar_url = $details->URL;
 
 		if ( strpos( $details->URL, 'wordpress.com' ) === false )
@@ -254,13 +258,17 @@ class Postbot_Blog {
 	}
 
 	public function get_blavatar_url( $size = 96 ) {
+		$blavatar = $this->blavatar_url;
+		if ( empty( $blavatar ) )
+			$blavatar = 'http://en.wordpress.com/i/webclip.png';
+
 		$params = array();
 		$size   = absint( $size );
 
 		if ( $size > 0 )
 			$params['s'] = $size;
 
-		return $this->blavatar_url . '?' . http_build_query( $params );
+		return $blavatar . '?' . http_build_query( $params );
 	}
 
 	public static function remove_for_user( $user_id, $blog_id ) {
@@ -560,7 +568,10 @@ class Postbot_Auto extends Postbot_Scheduler {
 			}
 
 			$this->clear();
-			$this->auto_publish = true;
+
+			$blog = $user->get_last_blog();
+			if ( $blog && $blog->is_authorized() )
+				$this->auto_publish = true;
 		}
 	}
 
