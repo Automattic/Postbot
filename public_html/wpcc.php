@@ -19,18 +19,27 @@ if ( isset( $_GET[ 'code' ] ) ) {
 		if ( $user_details && !is_wp_error( $user_details ) ) {
 			$blog = $client->get_blog_details( $user_details->primary_blog );
 
-			if ( $blog && Postbot_User::set_access_token( $user_details, $access_token, $blog ) ) {
-				wp_safe_redirect( SCHEDULE_URL );
-				die();
+			if ( !$blog || is_wp_error( $blog ) ) {
+				$client = new WPCOM_Rest_Client();
+				$blog = $client->get_blog_details( $user_details->primary_blog );
 			}
 
-			postbot_log_error( 0, 'Unable to get blog details', $user_details->primary_blog );
+			if ( $blog ) {
+				if ( !is_wp_error( $blog ) && Postbot_User::set_access_token( $user_details, $access_token, $blog ) ) {
+					wp_safe_redirect( SCHEDULE_URL );
+					die();
+				}
+				else
+					postbot_log_error( $user_details->ID, 'Unable to get blog details', $blog );
+			}
+			else
+				postbot_log_error( $user_details->ID, 'Unable to get blog details', $user_details->primary_blog );
 		}
 		else
 			postbot_log_error( 0, 'Unable to get user details' );
 	}
 	catch ( WPCOM_OAuth_Exception $exception ) {
-		postbot_log_error( 0, 'oAuth Exception - '.$exception->getMessage(), $user_details->primary_blog );
+		postbot_log_error( 0, 'oAuth Exception - '.$exception->getMessage() );
 	}
 
 	wp_safe_redirect( '?msg=failed' );
