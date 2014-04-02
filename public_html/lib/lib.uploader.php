@@ -1,8 +1,6 @@
 <?php
 
 class Postbot_Uploader {
-	const MAX_IMAGE_SIZE = 7500;
-
 	private $user_id;
 
 	private $file_size;
@@ -41,8 +39,8 @@ class Postbot_Uploader {
 		$this->image_width  = $size[0];
 		$this->image_height = $size[1];
 
-		if ( $size[0] > self::MAX_IMAGE_SIZE || $size[1] > self::MAX_IMAGE_SIZE )
-			return new WP_Error( 'upload', sprintf( __( 'Image dimensions %dx%d exceed our limits of %dx%d' ), $size[0], $size[1], self::MAX_IMAGE_SIZE, self::MAX_IMAGE_SIZE ) );
+		if ( $size[0] > POSTBOT_MAX_IMAGE_SIZE || $size[1] > POSTBOT_MAX_IMAGE_SIZE )
+			return new WP_Error( 'upload', sprintf( __( 'Image dimensions %dx%d exceed our limits of %dx%d' ), $size[0], $size[1], POSTBOT_MAX_IMAGE_SIZE, POSTBOT_MAX_IMAGE_SIZE ) );
 		elseif ( $this->file_size == 0 )
 			return new WP_Error( 'upload', __( 'Image has no size' ) );
 

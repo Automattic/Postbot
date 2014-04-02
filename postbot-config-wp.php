@@ -10,6 +10,7 @@ define( 'POSTBOT_MAX_UPLOAD', 10 );      // Max upload size, in MB
 define( 'POSTBOT_LOCAL_STORE', dirname( __FILE__ ).'/uploads/' );
 define( 'POSTBOT_LOCAL_URL', '/postbot/uploads/' );
 define( 'POSTBOT_THUMBNAIL_SIZE', 150 ); // Note this is the size on screen. A retina ready version will actually be produced
+define( 'POSTBOT_MAX_IMAGE_SIZE', 12000 );
 
 /**
  * Where Postbot lives
