@@ -245,12 +245,12 @@ class Postbot_Photo {
 		$old = $wpdb->get_results( $wpdb->prepare( "SELECT photos.*,posts.publish_date FROM {$wpdb->postbot_photos} AS photos LEFT JOIN {$wpdb->postbot_posts} AS posts ON posts.posted_id=photos.posted_id WHERE scheduled_at < DATE_SUB(NOW(),INTERVAL %d DAY)", $days_old ) );
 
 		foreach ( $old AS $pos => $photo ) {
-			if ( $old->publish_date && mysql2date( 'U', $old->publish_date ) < time() ) {
+			if ( $photo->publish_date && mysql2date( 'U', $photo->publish_date ) < time() ) {
 				$media = new Postbot_Photo( $photo );
 				$media->delete();
 			}
 
-			if ( $pos % 100 )
+			if ( $pos % 100 == 0 )
 				sleep( 1 );
 		}
 	}
