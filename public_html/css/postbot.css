@@ -1175,3 +1175,27 @@ body.media-items-multiple .schedule-item:after {
 	}
 
 }
+
+
+#support-link {
+position: fixed;
+z-index: 500;
+bottom: 20px;
+right: 20px;
+color: #c9c9c9;
+width: 24px;
+height: 24px;
+overflow: hidden;
+}
+
+#support-link:hover {
+color: #ce4331;
+}
+
+#support-link:before {
+content: '\f457';
+display: inline-block;
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+font: normal 24px/1 'Genericons';
+}

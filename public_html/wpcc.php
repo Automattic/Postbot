@@ -69,7 +69,7 @@ elseif ( isset( $_GET['login'] ) ) {
 			<div class="wp-logo icon wp"></div>
 
 			<p class="welcome">
-				<strong><?php _e( 'Welcome.' ); ?></strong> <?php _e( 'Schedule your photos' ); ?>
+				<strong><?php _e( 'Welcome.' ); ?></strong> <?php _e( 'Postbot will put your photoblog back on schedule.' ); ?>
 			</p>
 
 			<div class="sign-button">

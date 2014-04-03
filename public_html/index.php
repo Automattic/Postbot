@@ -168,10 +168,10 @@ $scripts_js  = postbot_bundled_javascript();
 				</svg>
 
 				<div class="upload-help-text">
-					<?php _e( 'Drop Images to Schedule' ); ?>
+					<?php _e( 'Drop Images to Schedule as Posts' ); ?>
 				</div>
 				<div class="upload-help-mobile">
-					<?php _e( 'Upload Photos and Schedule' ); ?>
+					<?php _e( 'Upload Photos and Schedule as Posts' ); ?>
 				</div>
 
 			</div>
@@ -180,6 +180,8 @@ $scripts_js  = postbot_bundled_javascript();
 		<input type="hidden" name="schedule_on_blog" value="<?php if ( $last_blog ) echo $last_blog->get_blog_id(); else echo '0'; ?>"/>
 		<input type="hidden" name="schedule_nonce" value=""/>
 		</form>
+
+		<a id="support-link" href="http://en.support.wordpress.com" title="<?php esc_attr_e( 'Help' ); ?>"><?php _e( 'Help' ); ?></a>
 	</div>
 
 	<div class="modal fade" id="confirm-schedule">
