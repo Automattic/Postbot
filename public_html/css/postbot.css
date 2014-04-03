@@ -578,6 +578,11 @@ body>.container>form {
 	text-align: center;
 }
 
+#upload-help > div {
+position: fixed;
+width: 100px;
+}
+
 .uploading #upload-help {
 	display: none;
 }
