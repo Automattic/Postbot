@@ -77,6 +77,8 @@ elseif ( isset( $_GET['login'] ) ) {
 					<img src="//s0.wp.com/i/wpcc-button.png" width="231" />
 				</a>
 			</div>
+			
+			<p class="footer">An <a href="http://automattic.com" rel="nofollow">Automattic</a> Machine</p>
 		</div>
 	</div>
 </body>
