@@ -66,11 +66,11 @@ elseif ( isset( $_GET['login'] ) ) {
 				</div>
 			<?php endif; ?>
 
-			<div class="wp-logo icon wp"></div>
-
 			<p class="welcome">
-				<strong><?php _e( 'Welcome.' ); ?></strong> <?php _e( 'Postbot will put your photoblog back on schedule.' ); ?>
+				<strong><?php _e( 'Welcome to Postbot.' ); ?></strong><br> <?php _e( 'Easy batch uploading and scheduling of photo posts for your WordPress blog.' ); ?>
 			</p>
+			
+			<div class="postbot-anim"></div>
 
 			<div class="sign-button">
 				<a href="<?php echo SCHEDULE_URL; ?>?login">
