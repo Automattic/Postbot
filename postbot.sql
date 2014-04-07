@@ -5,10 +5,10 @@ CREATE TABLE `postbot_auto` (
   `post_title` varchar(200) NOT NULL DEFAULT '',
   `post_tags` varchar(200) NOT NULL DEFAULT '',
   `post_content` text NOT NULL,
-  `schedule_at` datetime NOT NULL,
+  `position` smallint(5) unsigned NOT NULL,
   PRIMARY KEY (`pending_id`),
   UNIQUE KEY `media_id` (`media_id`),
-  KEY `user_id` (`user_id`)
+  KEY `user_id` (`user_id`,`position`)
 ) CHARSET=utf8;
 
 CREATE TABLE `postbot_blogs` (

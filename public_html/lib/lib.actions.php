@@ -37,15 +37,21 @@ function handle_get_actions( Postbot_User $user ) {
 
 function handle_post_actions( Postbot_User $user, array $media_items ) {
 	$response = false;
+	$action   = false;
 
-	if ( isset( $_POST['action'] ) && $_POST['action'] == 'postbot_get_dates' )
+	if ( isset( $_POST['action'] ) )
+		$action = $_POST['action'];
+
+	if ( $action == 'postbot_get_dates' )
 		$response = handle_get_dates( $user );
-	elseif ( isset( $_POST['action'] ) && $_POST['action'] == 'postbot_delete' )
+	elseif ( $action == 'postbot_delete' )
 		$response = handle_delete_item( $user );
-	elseif ( isset( $_POST['action'] ) && $_POST['action'] == 'postbot_set_blog' )
+	elseif ( $action == 'postbot_set_blog' )
 		$response = handle_set_blog( $user, $media_items );
-	elseif ( isset( $_POST['action'] ) && $_POST['action'] == 'postbot_uploading' )
+	elseif ( $action == 'postbot_uploading' )
 		$response = handle_pre_upload( $user, $media_items );
+	elseif ( $action == 'postbot_autosave' )
+		$response = handle_autosave( $user, $media_items );
 	elseif ( isset( $_POST['schedule_title'] ) )
 		$response = handle_schedule( $user, $media_items );
 
@@ -75,7 +81,27 @@ function handle_set_blog( Postbot_User $user, $media_items ) {
 	}
 
 	postbot_log_error( $user->get_user_id(), 'Invalid nonce check setting blog', print_r( $_POST, true ) );
-	return array( 'error' => __( 'Unable to perform action. Please refresh your browser and try again.' ) );
+	return array( 'error' => __( 'Unable to save blog.' ) );
+}
+
+function handle_autosave( Postbot_User $user, $media_items ) {
+	if ( wp_verify_nonce( $_POST['schedule_nonce'], 'scheduler-blog-'.$_POST['schedule_on_blog'] ) ) {
+		$blog = $user->get_blog( intval( $_POST['schedule_on_blog'] ) );
+
+		if ( $blog ) {
+			$auto = new Postbot_Auto( $user );
+			$total = $auto->store_for_later( $blog, $_POST, $media_items );
+
+			return array( 'saved' => $total );
+		}
+		else {
+			postbot_log_error( $user->get_user_id(), 'No access to blog while saving', print_r( $_POST, true ) );
+			return array( 'error' => __( 'You have no access to that blog.' ) );
+		}
+	}
+
+	postbot_log_error( $user->get_user_id(), 'Invalid nonce check autosaving', print_r( $_POST, true ) );
+	return array( 'error' => __( 'Unable to auto-save your post titles and content. You can carry on, but if you leave this page this information may be lost. Your photos are safe.' ) );
 }
 
 function handle_authorize_blog( Postbot_User $user ) {
@@ -134,8 +160,10 @@ function handle_delete_item( Postbot_User $user ) {
 		$media = Postbot_Photo::get_by_id( intval( $_POST['media_id'] ) );
 
 		if ( $media->get_user_id() == $user->get_user_id() ) {
-			if ( $media->delete() )
+			if ( $media->delete() ) {
+				Postbot_Auto::clear_for_media( $media );
 				return array( 'success' => true );
+			}
 		}
 
 		postbot_log_error( $user->get_user_id(), 'Failed deleting item', print_r( $_POST, true ) );
@@ -179,6 +207,9 @@ function handle_get_dates( Postbot_User $user ) {
 			'scheduling_text' => sprintf( _n( 'Your post is being scheduled, please wait.', 'Your posts are being scheduled, please wait.', $total ), $total )
 		);
 
+		$auto = new Postbot_Auto( $user );
+		$auto->store_time_for_later( $start_date, intval( $_POST['hour'] ), intval( $_POST['minute'] ), $interval, intval( $_POST['ignore_weekend'] ) === 1 ? true : false );
+
 		return $response;
 	}
 
@@ -204,11 +235,13 @@ function handle_schedule( Postbot_User $user, $media_items ) {
 				}
 
 				do_action( 'postbot_scheduled', $scheduled );
+				$auto->clear();
 
 				return $scheduled;
 			}
 
 			$auto->store_for_later( $blog, $_POST, $media_items );
+			$auto->set_publish_immediatley();
 
 			return array( 'redirect' => WPCOM_Rest_Client::get_blog_auth_url( $blog->get_blog_url() ) );
 		}

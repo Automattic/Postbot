@@ -1,4 +1,5 @@
 var uploader;
+var needs_saving = false;
 
 var Postbot_Error = function() {
 	var errors = [];
@@ -13,6 +14,7 @@ var Postbot_Error = function() {
 	api.reset = function() {
 		errors = [];
 		$( '#message' ).hide();
+		return this;
 	};
 
 	var show = function() {
@@ -37,6 +39,14 @@ var Postbot_Error = function() {
 };
 
 var postbot_error = Postbot_Error();
+
+function set_tab_order() {
+	$( '.schedule-item' ).each( function( pos, item ) {
+		$( item ).find( 'input, textarea' ).each( function( pos2, input ) {
+			$( input ).attr( 'tabindex', ( pos * 3 ) + pos2 + 1 );
+		} );
+	} );
+}
 
 function update_body_class() {
 	var count = $( '.schedule-item' ).length;
@@ -312,6 +322,7 @@ function setup_uploader() {
 
 			up.start();
 			update_body_class();
+			set_tab_order();
 		}, 'json' );
 	} );
 
@@ -358,6 +369,27 @@ function setup_uploader() {
 		postbot_error.add( error_message );
 		uploader.stop();
 	} );
+}
+
+function auto_save() {
+	if ( needs_saving ) {
+		$( 'input[name=schedule_nonce]' ).val( $( '#blog-' + $( 'input[name=schedule_on_blog]' ).val() ).data( 'nonce' ) );
+
+		$( 'form' ).ajaxSubmit( {
+			data: {
+				action: 'postbot_autosave',
+			},
+			dataType: 'json',
+			success: function( result ) {
+				postbot_error.reset();
+
+				if ( result.error )
+					postbot_error.add( result.error );
+			}
+		} );
+
+		needs_saving = false;
+	}
 }
 
 jQuery( document ).ready( function($) {
@@ -415,7 +447,9 @@ jQuery( document ).ready( function($) {
 		cursor: 'move',
 		placeholder: 'sortable-placeholder',
 		update: function() {
+			needs_saving = true;
 			schedule_changed();
+			set_tab_order();
 		}
 	} );
 
@@ -475,12 +509,14 @@ jQuery( document ).ready( function($) {
 
 		postbot_error.reset();
 		item_to_delete.hide();
+		set_tab_order();
 
 		$.post( postbot.ajax_url, data, function( response ) {
 			if ( response.error ) {
 				$( '.schedule-list' ).append( item_to_delete );
 				schedule_changed();
 				update_body_class();
+				set_tab_order();
 				return postbot_error.add( response.error );
 			}
 		}, 'json' );
@@ -517,10 +553,17 @@ jQuery( document ).ready( function($) {
 		return false;
 	} );
 
+	$( '.schedule-list' ).on( 'change', '.schedule-item input,.schedule-item textarea', function() {
+		needs_saving = true;
+	} );
+
 	$( '#responsive-menu-button' ).on( 'click', function( a ) {
 		a.preventDefault();
 		$( '.navbar-left' ).toggleClass( 'dropped' );
 	} );
+
+	setInterval( auto_save, 5000 );
+	set_tab_order();
 
 	if ( typeof(auto_publish) != 'undefined' && auto_publish )
 		$( '#schedule-confirmed' ).click();

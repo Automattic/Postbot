@@ -101,6 +101,20 @@ class Postbot_Post {
 		$this->post_data = array_map( 'stripslashes', $this->post_data );
 	}
 
+	private function get_media_name( $filename, $post_title ) {
+		if ( defined( 'POSTBOT_RENAME_IMAGES' ) && POSTBOT_RENAME_IMAGES === true ) {
+			$parts = pathinfo( $filename );
+
+			$filename = preg_replace( '/[[:punct:]]/', '', $post_title );
+			$filename = str_replace( ' ', '-', $filename );
+
+			$filename = trim( $filename );
+			$filename .= '.'.$parts['extension'];
+		}
+
+		return strtolower( $filename );
+	}
+
 	public function create_new_post( $access_token, $time, Postbot_Photo $media ) {
 		$client = new WPCOM_Rest_Client( $access_token );
 		$post = new WP_Error( 'new-post', __( 'Unable to find upload' ) );
@@ -109,7 +123,7 @@ class Postbot_Post {
 		if ( $local_copy ) {
 			$post_data = array_merge( $this->post_data, array(
 				'date'    => date( 'Y-m-d\TH:i:s', $time ),
-				'media[]' => '@'.$local_copy.';filename='.$media->get_filename(),
+				'media[]' => '@'.$local_copy.';filename='.$this->get_media_name( $media->get_filename(), $this->post_data['title'] ),
 			) );
 
 			$result = $client->new_post( $this->blog_id, $post_data );
@@ -549,30 +563,31 @@ class Postbot_User {
 
 class Postbot_Auto extends Postbot_Scheduler {
 	private $user;
-	private $pending = array();
-	private $auto_publish = false;
+	private $pending = false;
+	private $start_date = 0;
 	private $skip_weekend = false;
 	private $interval = 1;
+	private $auto_publish = false;
 
 	public function __construct( Postbot_User $user ) {
-		global $wpdb;
+		$this->user = $user;
+		$this->start_date = mktime( date( 'H' ) + 2, 0, 0, date( 'n' ), date( 'j' ), date( 'Y' ) );
 
-		$this->pending = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->postbot_auto} WHERE user_id=%d", $user->get_user_id() ) );
-		$this->user    = $user;
+		if ( isset( $_COOKIE[POSTBOT_COOKIE_SETTING] ) ) {
+			$parts = explode( '|', $_COOKIE[POSTBOT_COOKIE_SETTING] );
 
-		if ( count( $this->pending ) > 0 ) {
-			if ( isset( $_COOKIE[POSTBOT_COOKIE_SETTING] ) ) {
-				$parts = explode( '|', $_COOKIE[POSTBOT_COOKIE_SETTING] );
-				$this->skip_weekend = intval( $parts[0] ) == 0 ? false : true;
-				$this->interval     = intval( $parts[1] );
-			}
+			$this->start_date   = intval( $parts[0] );
+			$this->interval     = intval( $parts[1] );
+			$this->skip_weekend = intval( $parts[2] );
+			$this->auto_publish = intval( $parts[3] );
 
-			$this->clear();
-
-			$blog = $user->get_last_blog();
-			if ( $blog && $blog->is_authorized() )
-				$this->auto_publish = true;
+			if ( $this->publish_immediately() )
+				$this->clear_publish_immediatley();
 		}
+	}
+
+	public function get_start_date() {
+		return $this->start_date;
 	}
 
 	public function can_skip_weekend() {
@@ -583,11 +598,20 @@ class Postbot_Auto extends Postbot_Scheduler {
 		return $this->interval;
 	}
 
-	public function has_pending() {
+	public function publish_immediately() {
 		return $this->auto_publish;
 	}
 
+	private function load_pending() {
+		global $wpdb;
+
+		if ( $this->pending === false )
+			$this->pending = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->postbot_auto} WHERE user_id=%d ORDER BY position", $this->user->get_user_id() ) );
+	}
+
 	public function get_data_for_media( Postbot_Photo $media ) {
+		$this->load_pending();
+
 		foreach ( $this->pending AS $pending ) {
 			if ( $pending->media_id == $media->get_id() )
 				return $pending;
@@ -599,39 +623,55 @@ class Postbot_Auto extends Postbot_Scheduler {
 	public function store_for_later( Postbot_Blog $blog, array $data, array $media_items ) {
 		global $wpdb;
 
-		$start_date = Postbot_Time::get_start_time( strtotime( $data['schedule_date'] ), $data['schedule_time_hour'], $data['schedule_time_minute'] );
-		$skip       = false;
-		$interval   = intval( $data['schedule_interval'] );
-		$post_time  = new Postbot_Time( $start_date, $interval, $skip );
-		$pos        = intval( $data['pos'] );
-
-		if ( isset( $data['ignore_weekend'] ) )
-			$skip = true;
+		$total = 0;
 
 		foreach ( $data['schedule_title'] AS $media_id => $post_title ) {
 			$media = $this->get_media_item( $media_items, $media_id );
 
 			if ( $media ) {
 				$pending = array(
-					'media_id'     => $media_id,
-					'user_id'      => $this->user->get_user_id(),
 					'post_title'   => $post_title,
 					'post_content' => $data['schedule_content'][$media_id],
 					'post_tags'    => $data['schedule_tags'][$media_id],
-					'schedule_at'  => date( 'Y-m-d H:i:s', $post_time->get_time( $pos ) ),
+					'position'     => $total,
 				);
 
-				$wpdb->insert( $wpdb->postbot_auto, $pending );
-				$pos++;
+				if ( $wpdb->get_var( $wpdb->prepare( "SELECT media_id FROM {$wpdb->postbot_auto} WHERE media_id=%d", $media_id ) ) )
+					$wpdb->update( $wpdb->postbot_auto, $pending, array( 'media_id' => $media_id ) );
+				else {
+					$pending['media_id'] = $media_id;
+					$pending['user_id']  = $this->user->get_user_id();
+
+					$wpdb->insert( $wpdb->postbot_auto, $pending );
+				}
+
+				$total++;
 			}
 		}
 
 		$this->user->set_last_blog_id( $blog->get_blog_id() );
-		setcookie( POSTBOT_COOKIE_SETTING, implode( '|', array( $skip ? 1 : 0, $interval ) ), POSTBOT_COOKIE_EXPIRE, POSTBOT_COOKIE_PATH, POSTBOT_COOKIE_DOMAIN, POSTBOT_COOKIE_SSL, true );
+		$this->store_time_for_later( strtotime( $data['schedule_date'] ), $data['schedule_time_hour'], $data['schedule_time_minute'], intval( $data['schedule_interval'] ), isset( $data['ignore_weekend'] ) ? true : false );
+		return $total;
 	}
 
-	public function get_start_date() {
-		return mysql2date( 'U', $this->pending[0]->schedule_at );
+	public function store_time_for_later( $date, $hour, $minute, $interval, $skip ) {
+		$start_date = Postbot_Time::get_start_time( $date, $hour, $minute );
+
+		setcookie( POSTBOT_COOKIE_SETTING, implode( '|', array( $start_date, $interval, $skip ? 1 : 0, 0 ) ), POSTBOT_COOKIE_EXPIRE, POSTBOT_COOKIE_PATH, POSTBOT_COOKIE_DOMAIN, POSTBOT_COOKIE_SSL, true );
+	}
+
+	public function set_publish_immediatley() {
+		setcookie( POSTBOT_COOKIE_SETTING, implode( '|', array( $this->start_date, $this->interval, $this->skip_weekend ? 1 : 0, 1 ) ), POSTBOT_COOKIE_EXPIRE, POSTBOT_COOKIE_PATH, POSTBOT_COOKIE_DOMAIN, POSTBOT_COOKIE_SSL, true );
+	}
+
+	public function clear_publish_immediatley() {
+		setcookie( POSTBOT_COOKIE_SETTING, implode( '|', array( $this->start_date, $this->interval, $this->skip_weekend ? 1 : 0, 0 ) ), POSTBOT_COOKIE_EXPIRE, POSTBOT_COOKIE_PATH, POSTBOT_COOKIE_DOMAIN, POSTBOT_COOKIE_SSL, true );
+	}
+
+	public static function clear_for_media( Postbot_Photo $media ) {
+		global $wpdb;
+
+		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->postbot_auto} WHERE media_id=%d", $media->get_id () ) );
 	}
 
 	public function clear() {
@@ -639,9 +679,27 @@ class Postbot_Auto extends Postbot_Scheduler {
 
 		setcookie( POSTBOT_COOKIE_SETTING, '', time() - YEAR_IN_SECONDS, POSTBOT_COOKIE_PATH, POSTBOT_COOKIE_DOMAIN, POSTBOT_COOKIE_SSL, true );
 
-		$this->auto_publish = false;
-		if ( count( $this->pending ) > 0 )
-			$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->postbot_auto} WHERE user_id=%d", $this->user->get_user_id() ) );
+		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->postbot_auto} WHERE user_id=%d", $this->user->get_user_id() ) );
+	}
+
+	public function reorder_items( array $media_items ) {
+		$this->load_pending();
+		$new_order = array();
+
+		if ( count( $this->pending ) > 0 ) {
+			foreach ( $this->pending AS $item ) {
+				foreach ( $media_items AS $media_item ) {
+					if ( $media_item->get_id() == $item->media_id ) {
+						$new_order[] = $media_item;
+						break;
+					}
+				}
+			}
+		}
+		else
+			$new_order = $media_items;
+
+		return $new_order;
 	}
 }
 

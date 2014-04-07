@@ -14,16 +14,15 @@ if ( !$user ) {
 	die();
 }
 
-$media_items  = Postbot_Photo::get_for_user( $user->user_id );
-$start_date   = mktime( date( 'H' ) + 2, 0, 0, date( 'n' ), date( 'j' ), date( 'Y' ) );
-$last_blog    = $user->get_last_blog();
-$notice       = false;
+$media_items = Postbot_Photo::get_for_user( $user->user_id );
+$last_blog   = $user->get_last_blog();
+$notice      = false;
 
 handle_scheduler_actions( $user, $media_items );
 
 $auto_publish = new Postbot_Auto( $user );
-if ( $auto_publish->has_pending() )
-	$start_date = $auto_publish->get_start_date();
+$start_date   = $auto_publish->get_start_date();
+$media_items  = $auto_publish->reorder_items( $media_items );
 
 if ( isset( $_GET['msg'] ) ) {
 	if ( $_GET['msg'] == 'failedauth' )
@@ -32,7 +31,6 @@ if ( isset( $_GET['msg'] ) ) {
 		$notice = __( 'Unable to publish to blog - your authorization may have been revoked. Please re-authorize the blog and try again.' );
 }
 elseif ( isset( $_GET['error'] ) && $_GET['error'] == 'access_denied' ) {
-	$auto_publish->clear();
 	$notice = __( 'Unable to authorize a connection to your blog. Please try again.' );
 }
 
@@ -125,7 +123,7 @@ $scripts_js  = postbot_bundled_javascript();
 
 							<div class="schedule-pick-times">
 								<?php
-									$pick_date  = '<input type="hidden" name="schedule_date" value="'.$start_date.'"/>';
+									$pick_date  = '<input type="hidden" name="schedule_date" value="'.date( 'Y-m-d', $start_date ).'"/>';
 									$pick_date .= '<strong><a href="#" id="schedule-pick-date">'.date_i18n( 'l, F jS', $start_date ).'</a></strong>';
 
 									$pick_time = '<strong><a href="#" id="schedule-pick-time">'.date_i18n( 'H:i', $start_date ).'</a></strong>';
@@ -242,7 +240,7 @@ $scripts_js  = postbot_bundled_javascript();
 		thumbnail_size: <?php echo POSTBOT_THUMBNAIL_SIZE; ?>
 	};
 
-	var auto_publish = <?php if ( $auto_publish->has_pending() ) echo 'true'; else echo 'false'; ?>;
+	var auto_publish = <?php if ( $auto_publish->publish_immediately() && $last_blog->is_authorized() ) echo 'true'; else echo 'false'; ?>;
 	</script>
 </body>
 </html>
