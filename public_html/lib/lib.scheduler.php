@@ -208,6 +208,9 @@ class Postbot_Blog {
 	public static function save( $user_id, $blog_id, $blog_name, $blog_url, $blavatar_url, $access_token = null ) {
 		global $wpdb;
 
+		if ( empty( $blog_name ) )
+			$blog_name = parse_url( $blog_url, PHP_URL_HOST );
+
 		$existing_id = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$wpdb->postbot_blogs} WHERE user_id=%d AND blog_id=%d", $user_id, $blog_id ) );
 
 		$blog_data = array(
