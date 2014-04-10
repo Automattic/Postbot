@@ -179,7 +179,7 @@ $scripts_js  = postbot_bundled_javascript();
 		<input type="hidden" name="schedule_nonce" value=""/>
 		</form>
 
-		<a id="support-link" href="http://en.support.wordpress.com" title="<?php esc_attr_e( 'Help' ); ?>"><?php _e( 'Help' ); ?></a>
+		<a id="support-link" href="http://en.support.wordpress.com/postbot/" title="<?php esc_attr_e( 'Help' ); ?>"><?php _e( 'Help' ); ?></a>
 	</div>
 
 	<div class="modal fade" id="confirm-schedule">
