@@ -11,6 +11,7 @@ define( 'POSTBOT_LOCAL_STORE', dirname( __FILE__ ).'/uploads/' );
 define( 'POSTBOT_LOCAL_URL', '/postbot/uploads/' );
 define( 'POSTBOT_THUMBNAIL_SIZE', 150 ); // Note this is the size on screen. A retina ready version will actually be produced
 define( 'POSTBOT_MAX_IMAGE_SIZE', 12000 );
+define( 'POSTBOT_RENAME_IMAGES', true );
 
 /**
  * Where Postbot lives
