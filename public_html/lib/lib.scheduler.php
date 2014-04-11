@@ -115,7 +115,7 @@ class Postbot_Post {
 		return strtolower( $filename );
 	}
 
-	public function create_new_post( $access_token, $time, Postbot_Photo $media ) {
+	public function create_new_post( $access_token, $time, Postbot_Photo $media, $gmt_offset ) {
 		$client = new WPCOM_Rest_Client( $access_token );
 		$post = new WP_Error( 'new-post', __( 'Unable to find upload' ) );
 
@@ -125,6 +125,12 @@ class Postbot_Post {
 				'date'    => date( 'Y-m-d\TH:i:s', $time ),
 				'media[]' => '@'.$local_copy.';filename='.$this->get_media_name( $media->get_filename(), $this->post_data['title'] ),
 			) );
+
+			$min_offset = ceil( abs( $gmt_offset ) ) - abs( $gmt_offset );
+			if ( $min_offset > 0 )
+				$min_offset = ( 60 * ( 1 - $min_offset ) );
+
+			$post_data['date'] .= sprintf( '%s%02s:%02d', $gmt_offset < 0 ? '-' : '+', abs( intval( floor( $gmt_offset ) ) ), $min_offset );
 
 			$result = $client->new_post( $this->blog_id, $post_data );
 
@@ -180,6 +186,7 @@ class Postbot_Blog {
 	private $blog_id;
 	private $blog_auth_token;
 	private $blavatar_url;
+	private $gmt_offset;
 
 	public function __construct( $data ) {
 		$this->blog_url        = $data->blog_url;
@@ -187,6 +194,7 @@ class Postbot_Blog {
 		$this->blog_name       = $data->blog_name;
 		$this->blog_auth_token = $data->access_token;
 		$this->blavatar_url    = $data->blavatar_url;
+		$this->gmt_offset      = $data->gmt_offset;
 	}
 
 	public function get_blog_id() {
@@ -205,7 +213,11 @@ class Postbot_Blog {
 		return $this->blog_auth_token;
 	}
 
-	public static function save( $user_id, $blog_id, $blog_name, $blog_url, $blavatar_url, $access_token = null ) {
+	public function get_gmt_offset() {
+		return $this->gmt_offset;
+	}
+
+	public static function save( $user_id, $blog_id, $blog_name, $blog_url, $blavatar_url, $gmt_offset, $access_token = null ) {
 		global $wpdb;
 
 		if ( empty( $blog_name ) )
@@ -218,6 +230,7 @@ class Postbot_Blog {
 			'blog_name'    => $blog_name,
 			'blog_url'     => $blog_url,
 			'blavatar_url' => $blavatar_url,
+			'gmt_offset'   => $gmt_offset,
 		);
 
 		if ( $existing_id )
@@ -236,8 +249,12 @@ class Postbot_Blog {
 
 			if ( $blog && !is_wp_error( $blog ) ) {
 				$blavatar_url = self::extract_blavatar( $blog );
+				$gmt_offset   = 0;
 
-				$blog = Postbot_Blog::save( $user->user_id, $access->blog_id, $blog->name, $blog->URL, $blavatar_url, $access->access_token );
+				if ( isset( $blog->options->gmt_offset ) )
+					$gmt_offset = floatval( $blog->options->gmt_offset );
+
+				$blog = Postbot_Blog::save( $user->user_id, $access->blog_id, $blog->name, $blog->URL, $blavatar_url, $gmt_offset, $access->access_token );
 				$user->set_last_blog_id( $access->blog_id );
 			}
 
@@ -323,7 +340,7 @@ class Postbot_Scheduler {
 			if ( $media ) {
 				$blog_post = new Postbot_Post( $blog->get_blog_id(), $post_title, $data['schedule_content'][$media_id], $data['schedule_tags'][$media_id] );
 
-				$result = $blog_post->create_new_post( $blog->get_access_token(), $post_time->get_time( $pos ), $media );
+				$result = $blog_post->create_new_post( $blog->get_access_token(), $post_time->get_time( $pos ), $media, $blog->get_gmt_offset() );
 				if ( is_wp_error( $result ) )
 					return $result;
 
