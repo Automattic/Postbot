@@ -19,6 +19,7 @@ CREATE TABLE `postbot_blogs` (
   `blog_url` varchar(200) NOT NULL DEFAULT '',
   `blavatar_url` varchar(100) NOT NULL,
   `access_token` varchar(200) DEFAULT '',
+  `gmt_offset` float NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`,`blog_id`)
 ) CHARSET=utf8;
