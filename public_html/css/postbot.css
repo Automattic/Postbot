@@ -210,6 +210,24 @@ a.navbar-brand {
 	padding: 5px;
 }
 
+#dropdown-toggle span, li.dropdown-blog a {
+	display: inline-block;
+	max-width: 110px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	vertical-align: middle;
+}
+
+li.dropdown-blog a {
+	max-width: 170px;
+	position: relative;
+}
+
+li.dropdown-blog.selected a {
+	padding-right: 30px;
+}
+
 .navbar ul li a.dropdown-toggle:hover {
 	color: #ce4331;
 }
@@ -257,8 +275,9 @@ a.navbar-brand {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	font: normal 24px/1 'Genericons';
-	position: relative;
-	top: 6px;
+	position: absolute;
+	top: 8px;
+	right: 5px;
 }
 
 
