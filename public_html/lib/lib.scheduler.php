@@ -217,8 +217,16 @@ class Postbot_Blog {
 		return $this->gmt_offset;
 	}
 
-	public static function save( $user_id, $blog_id, $blog_name, $blog_url, $blavatar_url, $gmt_offset, $access_token = null ) {
+	public static function save( $user_id, $blog_id, $blog, $access_token = null ) {
 		global $wpdb;
+
+		$blavatar_url = self::extract_blavatar( $blog );
+		$blog_url     = $blog->URL;
+		$blog_name    = $blog->name;
+		$gmt_offset   = 0;
+
+		if ( isset( $blog->options->gmt_offset ) )
+			$gmt_offset = floatval( $blog->options->gmt_offset );
 
 		if ( empty( $blog_name ) )
 			$blog_name = parse_url( $blog_url, PHP_URL_HOST );
@@ -248,13 +256,7 @@ class Postbot_Blog {
 			$blog = $api->get_blog_details( $access->blog_id );
 
 			if ( $blog && !is_wp_error( $blog ) ) {
-				$blavatar_url = self::extract_blavatar( $blog );
-				$gmt_offset   = 0;
-
-				if ( isset( $blog->options->gmt_offset ) )
-					$gmt_offset = floatval( $blog->options->gmt_offset );
-
-				$blog = Postbot_Blog::save( $user->user_id, $access->blog_id, $blog->name, $blog->URL, $blavatar_url, $gmt_offset, $access->access_token );
+				$blog = Postbot_Blog::save( $user->user_id, $access->blog_id, $blog, $access->access_token );
 				$user->set_last_blog_id( $access->blog_id );
 			}
 
@@ -522,7 +524,7 @@ class Postbot_User {
 		}
 
 		if ( $user ) {
-			Postbot_Blog::save( $user_details->ID, $user_details->primary_blog, $blog_details->name, $blog_details->URL, Postbot_Blog::extract_blavatar( $blog_details ) );
+			Postbot_Blog::save( $user_details->ID, $user_details->primary_blog, $blog_details );
 			self::set_auth_password( $user_details->ID, $data['password'] );
 			return true;
 		}
