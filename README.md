@@ -27,3 +27,15 @@ Requirements
 - PHP 5 with GD or ImageMagick
 - A working WordPress with connection to MySQL
 - An upload directory writeable to by the web server
+
+Installation
+============
+
+- Get WordPress installed and connected to your database. You don't need to have WordPress available to anyone, but the database functions are used by Postbot
+- Edit `postbot-local.php` and changed the WordPress include to refer to your WordPress installation
+- Create the [Postbot tables](https://github.com/Automattic/Postbot/blob/master/postbot.sql)
+- Create a new [oAuth app](https://developer.wordpress.com/apps/) for the WordPress.com Connect signin. Set the redirect_uri to be the `wpcc.php` file in Postbot.
+- Edit `postbot-config.php` and set the `OAUTH_WPCC_KEY`, `OAUTH_WPCC_SECRET`, and `OAUTH_WPCC_REDIRECT` to the details in the oAuth app
+- Create another oAuth app for the WordPress.com blog authorisation. Set the `redirect_uri` to be the `index.php` file in Postbot.
+- Edit `postbot-config.php` and set the `OAUTH_KEY`, `OAUTH_SECRET`, and `OAUTH_REDIRECT` to the details in this oAuth app
+- Edit other settings in `postbot-config.php` as appropriate
