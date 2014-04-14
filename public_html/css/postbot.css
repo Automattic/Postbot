@@ -693,6 +693,13 @@ input[type=submit], button, a.btn {
 	cursor: pointer;
 }
 
+#uploader .btn-primary {
+	margin-bottom: 40px;
+	max-width: 320px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
 
 /* Schedule */
 
@@ -702,6 +709,11 @@ input[type=submit], button, a.btn {
 	overflow: hidden;
 	margin-bottom: 40px;
 }
+
+.schedule-item.ui-sortable-helper {
+	padding-right: 0px;
+}
+
 
 #upload-help-drop {
 	display: none;
@@ -739,6 +751,12 @@ body.media-items-multiple .schedule-item:after {
 	position: absolute;
 	top: 1px;
 	right: 200px;
+	z-index: -1;
+}
+
+body.media-items-multiple .schedule-item.ui-sortable-helper:after {
+	top: 16px !important;
+	right: 55px !important;
 }
 
 .media-upload-form label.sr-only {
@@ -791,8 +809,17 @@ body.media-items-multiple .schedule-item:after {
 }
 
 .ui-sortable-helper {
-	height: 75px !important;
-	padding: 15px;
+	width: calc(100% - 160px);
+	z-index: 10;
+	position: relative;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	padding: 15px 45px 15px 15px;
+}
+
+.ui-sortable-helper a.schedule-remove {
+	margin-right: -32px;
 }
 
 .ui-sortable-helper .schedule-content {
@@ -864,6 +891,13 @@ body.media-items-multiple .schedule-item:after {
 	color: #ccc;
 	overflow: hidden;
 	margin-right: 20px;
+	cursor: default;
+}
+
+.schedule-actions {
+	cursor: move;
+	overflow: hidden;
+	cursor: move;
 }
 
 .schedule-actions a {
@@ -1122,7 +1156,7 @@ body.media-items-multiple .schedule-item:after {
 	.media-upload-form ul.schedule-list {
 		border-top: 3px solid #ccc;
 		padding-top: 20px;
-		margin-top: 140px;
+		margin-top: 160px;
 		overflow: hidden;
 	}
 	
@@ -1175,10 +1209,16 @@ body.media-items-multiple .schedule-item:after {
 	}
 	
 	.media-items-single #upload-help, .media-items-multiple #upload-help {
-		left: 0;
+		left: 50%;
 		width: auto;
-		top: -160px;
+		top: -180px;
+		margin-left: -50px;
 	}
+	
+	.media-items-single #upload-help>div, .media-items-multiple #upload-help>div {
+		position: relative;
+	}
+
 
 }
 
