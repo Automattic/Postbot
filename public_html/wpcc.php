@@ -67,9 +67,9 @@ elseif ( isset( $_GET['login'] ) ) {
 			<?php endif; ?>
 
 			<p class="welcome">
-				<strong><?php _e( 'Welcome to Postbot.' ); ?></strong><br> <?php _e( 'Easy batch uploading and scheduling of photo posts for your WordPress blog.' ); ?>
+				<strong><?php _e( 'Welcome to Postbot.' ); ?></strong><br> <?php _e( 'Upload one, two, or 50 photos and schedule them to publish individually on different dates with only a few clicks!' ); ?>
 			</p>
-			
+
 			<div class="postbot-anim"></div>
 
 			<div class="sign-button">
@@ -77,7 +77,7 @@ elseif ( isset( $_GET['login'] ) ) {
 					<img src="//s0.wp.com/i/wpcc-button.png" width="231" />
 				</a>
 			</div>
-			
+
 			<p class="footer">An <a href="http://automattic.com" rel="nofollow">Automattic</a> Machine</p>
 		</div>
 	</div>
