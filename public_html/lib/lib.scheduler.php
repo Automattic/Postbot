@@ -658,6 +658,8 @@ class Postbot_Auto extends Postbot_Scheduler {
 					'position'     => $total,
 				);
 
+				$pending = array_map( 'stripslashes', $pending );
+
 				if ( $wpdb->get_var( $wpdb->prepare( "SELECT media_id FROM {$wpdb->postbot_auto} WHERE media_id=%d", $media_id ) ) )
 					$wpdb->update( $wpdb->postbot_auto, $pending, array( 'media_id' => $media_id ) );
 				else {

@@ -8,7 +8,7 @@ function display_navigation_menu( Postbot_User $user, $last_blog, $show_pending_
 				<a class="navbar-brand" href="<?php echo SCHEDULE_URL; ?>">
 					<?php _e( 'Postbot' ); ?>
 				</a>
-				<a id="responsive-menu-button" href="/" class="icon">Menu</a>
+				<a id="responsive-menu-button" href="/" class="icon"><?php _e( 'Menu' ); ?></a>
 			</div>
 
 			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">

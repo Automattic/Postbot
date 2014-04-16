@@ -71,7 +71,7 @@ function update_uploader_button() {
 function update_schedule_times( date_string, time_string, schedule, button_text ) {
 	$( '#schedule-pick-date' ).text( date_string );
 	$( '#schedule-pick-time' ).text( time_string );
-	$( '#schedule-submit-button' ).val( decode_entities( button_text ) );
+	$( '#schedule-submit-button' ).val( button_text );
 
 	for ( var loop = 0; loop < schedule.length; loop++ ) {
 		$( '.schedule-item:nth-child(' + ( loop + 1 ) + ') .schedule-time' ).html( sanitize_string( schedule[loop].day ) + '<br/>' + sanitize_string( schedule[loop].date ) );
@@ -165,7 +165,7 @@ function schedule_changed() {
 			disable_form_elements( false );
 		}
 		else {
-			update_schedule_times( response.text, response.time, response.dates, response.button );
+			update_schedule_times( response.text, response.time, response.dates, decode_entities( response.button ) );
 
 			postbot.body_text_1   = response.body_text_1;
 			postbot.body_text_2   = response.body_text_2;
@@ -398,7 +398,7 @@ jQuery( document ).ready( function($) {
 
 	$( 'a.swap-blog' ).on( 'click', function( e ) {
 		$( 'input[name=schedule_on_blog]' ).val( $( this ).data( 'blog-id' ) );
-		$( '#dropdown-toggle span' ).text( sanitize_string( $( this ).data( 'blog-name' ) ) );
+		$( '#dropdown-toggle span' ).text( $( this ).data( 'blog-name' ) );
 		$( '#dropdown-toggle img' ).attr( 'src', $( this ).data( 'blavatar' ) );
 
 		$( 'li.dropdown-blog' ).removeClass( 'selected' );
