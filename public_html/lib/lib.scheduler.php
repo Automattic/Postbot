@@ -591,9 +591,9 @@ class Postbot_Auto extends Postbot_Scheduler {
 	private $interval = 1;
 	private $auto_publish = false;
 
-	public function __construct( Postbot_User $user ) {
+	public function __construct( Postbot_User $user, Postbot_Blog $blog = null ) {
 		$this->user = $user;
-		$this->start_date = mktime( date( 'H' ) + 2, 0, 0, date( 'n' ), date( 'j' ), date( 'Y' ) );
+		$this->start_date = mktime( date( 'H' ), 0, 0, date( 'n' ), date( 'j' ) + 1, date( 'Y' ) );
 
 		if ( isset( $_COOKIE[POSTBOT_COOKIE_SETTING] ) ) {
 			$parts = explode( '|', $_COOKIE[POSTBOT_COOKIE_SETTING] );
@@ -606,6 +606,9 @@ class Postbot_Auto extends Postbot_Scheduler {
 			if ( $this->publish_immediately() )
 				$this->clear_publish_immediatley();
 		}
+
+		if ( $blog )
+			$this->start_date += ( $blog->get_gmt_offset() * 60 * 60 );
 	}
 
 	public function get_start_date() {

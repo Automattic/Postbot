@@ -20,7 +20,7 @@ $notice      = false;
 
 handle_scheduler_actions( $user, $media_items );
 
-$auto_publish = new Postbot_Auto( $user );
+$auto_publish = new Postbot_Auto( $user, $last_blog );
 $start_date   = $auto_publish->get_start_date();
 $media_items  = $auto_publish->reorder_items( $media_items );
 
