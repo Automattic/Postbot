@@ -347,10 +347,6 @@ body.media-items-none #pending-uploads {
 	margin: 0 auto;
 }
 
-.moxie-shim-html5 {
-	width: auto !important;
-}
-
 #uploading-files {
 	display: none;
 	position: fixed;
@@ -596,6 +592,7 @@ body>.container>form {
 	font-size: 28px;
 	font-weight: 300;
 	text-align: center;
+	min-height: 172px;
 }
 
 #upload-help > div {
@@ -642,6 +639,30 @@ body.media-items-none #upload-help>div {
 	cursor: pointer;
 	color: #ce4331;
 	fill: #ce4331;
+}
+
+.moxie-shim-html5 {
+	width: auto;
+}
+
+@media screen and (orientation:portrait) {
+	.ipad.media-items-single .moxie-shim-html5, .ipad.media-items-multiple .moxie-shim-html5 {
+		position: fixed !important;
+		top: 88px !important;
+		right: 0px !important;
+		left: inherit !important;
+		width: 150px !important;
+	}
+}
+
+@media screen and (orientation:landscape) {
+	.ipad.media-items-single .moxie-shim-html5, .ipad.media-items-multiple .moxie-shim-html5 {
+		position: fixed !important;
+		top: 88px !important;
+		right: 0px !important;
+		left: inherit !important;
+		width: 210px !important;
+	}
 }
 
 .media-items-single #upload-help, .media-items-multiple #upload-help {

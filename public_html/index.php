@@ -62,6 +62,9 @@ if ( $last_blog ) {
 if ( wp_is_mobile() )
 	$body_class .= ' mobile';
 
+if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && stripos( $_SERVER['HTTP_USER_AGENT'], 'ipad' ) !== false )
+	$body_class .= ' ipad';
+
 $scripts_css = postbot_bundled_css();
 $scripts_js  = postbot_bundled_javascript();
 
