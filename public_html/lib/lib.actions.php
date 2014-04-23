@@ -75,13 +75,19 @@ function handle_set_blog( Postbot_User $user, $media_items ) {
 	if ( wp_verify_nonce( $_POST['nonce'], 'scheduler-blog-'.$blog_id ) ) {
 		$user->set_last_blog_id( $blog_id );
 
-		return array(
-			'button' => sprintf( _n( 'Schedule %d post on %s', 'Schedule %d posts on %s', count( $media_items ) ), count( $media_items ), $user->get_last_blog()->get_blog_name() )
-		);
+		$last_blog = $user->get_last_blog();
+		if ( $last_blog ) {
+			return array(
+				'button' => sprintf( _n( 'Schedule %d post on %s', 'Schedule %d posts on %s', count( $media_items ) ), count( $media_items ), $last_blog->get_blog_name() )
+			);
+		}
+
+		postbot_log_error( $user->get_user_id(), 'Failed to get blog after setting it', print_r( $_POST, true ) );
+		return array( 'error' => __( 'Unable to save blog setting.' ) );
 	}
 
 	postbot_log_error( $user->get_user_id(), 'Invalid nonce check setting blog', print_r( $_POST, true ) );
-	return array( 'error' => __( 'Unable to save blog.' ) );
+	return array( 'error' => __( 'Unable to save blog setting.' ) );
 }
 
 function handle_autosave( Postbot_User $user, $media_items ) {
