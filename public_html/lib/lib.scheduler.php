@@ -258,12 +258,13 @@ class Postbot_Blog {
 			if ( $blog && !is_wp_error( $blog ) ) {
 				$blog = Postbot_Blog::save( $user->user_id, $access->blog_id, $blog, $access->access_token );
 				$user->set_last_blog_id( $access->blog_id );
+				return true;
 			}
 
-			return true;
+			return $blog;
 		}
 
-		return false;
+		return $access;
 	}
 
 	public static function extract_blavatar( $details ) {
@@ -524,7 +525,9 @@ class Postbot_User {
 		}
 
 		if ( $user ) {
-			Postbot_Blog::save( $user_details->ID, $user_details->primary_blog, $blog_details );
+			if ( $blog_details )
+				Postbot_Blog::save( $user_details->ID, $user_details->primary_blog, $blog_details );
+
 			self::set_auth_password( $user_details->ID, $data['password'] );
 			return true;
 		}
@@ -650,7 +653,7 @@ class Postbot_Auto extends Postbot_Scheduler {
 
 		$total = 0;
 
-		foreach ( $data['schedule_title'] AS $media_id => $post_title ) {
+		foreach ( (array)$data['schedule_title'] AS $media_id => $post_title ) {
 			$media = $this->get_media_item( $media_items, $media_id );
 
 			if ( $media ) {
