@@ -24,13 +24,15 @@ function display_navigation_menu( Postbot_User $user, $last_blog, $show_pending_
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
 					<li class="dropdown">
-						<?php if ( $last_blog ) : ?>
 						<a href="<?php echo SCHEDULE_URL; ?>" class="dropdown-toggle" data-toggle="dropdown" id="dropdown-toggle">
-							<img src="<?php echo sslize( $last_blog->get_blavatar_url( 40 ) ); ?>" width="20" height="20"/> <span><?php echo esc_html( $last_blog->get_blog_name() ); ?></span>
+							<?php if ( $last_blog ) : ?>
+								<img src="<?php echo sslize( $last_blog->get_blavatar_url( 40 ) ); ?>" width="20" height="20"/> <span><?php echo esc_html( $last_blog->get_blog_name() ); ?></span>
+							<?php else : ?>
+								<span><?php _e( 'Connect' ); ?></span>
+							<?php endif; ?>
 
 							<strong class="caret"></strong>
 						</a>
-						<?php endif; ?>
 
 						<ul class="dropdown-menu">
 							<?php if ( $last_blog ) : ?>
