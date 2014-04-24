@@ -111,12 +111,23 @@ function handle_autosave( Postbot_User $user, $media_items ) {
 }
 
 function handle_authorize_blog( Postbot_User $user ) {
-	// Called when authing a blog
-	if ( Postbot_Blog::authorize_blog( $user, $_GET['code'] ) )
-		wp_safe_redirect( SCHEDULE_URL );
-	else
-		wp_safe_redirect( SCHEDULE_URL.'?msg=failedauth' );
+	$auth = Postbot_Blog::authorize_blog( $user, $_GET['code'] );
 
+	// Called when authing a blog
+	if ( $auth && !is_wp_error( $auth ) ) {
+		wp_safe_redirect( SCHEDULE_URL );
+		die();
+	}
+
+	$failmsg = 'failedauth';
+	if ( $auth->get_error_code() == 'unauthorized' )
+		$failmsg = 'unauthorized';
+	elseif ( $auth->get_error_code() == 'jetpack_error' ) {
+		$failmsg = 'jetpack&jetpack='.urlencode( $auth->get_error_message() );
+		error_log(print_r($auth,true));
+	}
+
+	wp_safe_redirect( SCHEDULE_URL.'?msg='.$failmsg );
 	die();
 }
 
