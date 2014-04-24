@@ -10,7 +10,11 @@ include dirname( __FILE__ ).'/lib/lib.actions.php';
 $user = Postbot_User::get_from_cookie();
 
 if ( !$user ) {
-	include dirname( __FILE__ ).'/wpcc.php';
+	if ( isset( $_SERVER['HTTP_X_REQUESTED_WITH'] ) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' )
+		echo json_encode( array( 'error' => __( 'You are no longer logged in. Please refresh the page and try again.' ) ) );
+	else
+		include dirname( __FILE__ ).'/wpcc.php';
+
 	die();
 }
 
