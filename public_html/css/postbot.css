@@ -710,8 +710,21 @@ input[type=submit], button, a.btn {
 	font-weight: bold;
 	border-radius: 3px;
 	border: none;
-	padding: 4px 12px;
 	cursor: pointer;
+	border-bottom: 3px solid #A73223;
+	padding: 4px 12px 1px 12px;
+}
+
+input[type=submit]:hover, button:hover, a.btn:hover {
+	background: #e45c4b;
+	border-bottom: 3px solid #ce4331;
+}
+
+input[type=submit]:active, button:active, a.btn:active {
+	border-top: 3px solid #A73223;
+	background: #ce4331;
+	border-bottom: none;
+	padding: 1px 12px 4px 12px;
 }
 
 #uploader .btn-primary {
@@ -719,6 +732,7 @@ input[type=submit], button, a.btn {
 	max-width: 320px;
 	text-overflow: ellipsis;
 	overflow: hidden;
+	line-height: 3;
 }
 
 
@@ -797,6 +811,7 @@ body.media-items-multiple .schedule-item.ui-sortable-helper:after {
 	padding: 4px 12px;
 	margin-right: 20px;
 	margin-bottom: 40px;
+	line-height: 3;
 }
 
 .schedule-dates-interval {
@@ -1163,6 +1178,29 @@ body.media-items-multiple .schedule-item.ui-sortable-helper:after {
 
 	.post-interval {
 		margin-bottom: 20px;
+		margin-right: 0;
+		float: none;
+		width: 100%;
+		box-sizing: border-box;
+		-moz-box-sizing:border-box;
+		-webkit-box-sizing:border-box;
+	}
+	
+	.post-interval>div>div {
+		display: block;
+		margin-left: 0 !important;
+	}
+	
+	#pick-time {
+		width: 100%;
+		box-sizing: border-box;
+		-moz-box-sizing: border-box;
+		-webkit-box-sizing: border-box;
+	}
+
+	#uploader .btn-primary {
+		max-width: none;
+		width: 100%;
 	}
 	
 	#uploader {
