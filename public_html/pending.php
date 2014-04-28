@@ -61,7 +61,7 @@ if ( wp_is_mobile() )
 							<div class="schedule-info">
 								<h5><?php echo esc_html( $post->title ); ?></h5>
 
-								<?php printf( __( 'Will be published %s' ), date_i18n( 'M jS, Y', $post->publish_date ) ); ?>
+								<?php printf( __( 'Will be published on <em>%1s</em> at %2s' ), esc_html( $blog->get_blog_name() ), date_i18n( 'M jS, Y', $post->publish_date ) ); ?>
 
 								<div class="schedule-pending-actions">
 									<?php if ( $blog && $blog->is_authorized() ) : ?>
