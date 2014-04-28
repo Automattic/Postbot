@@ -70,7 +70,14 @@ elseif ( isset( $_GET['login'] ) ) {
 				<strong><?php _e( 'Welcome to Postbot.' ); ?></strong><br> <?php _e( 'Upload one, two, or 50 photos and schedule them to publish individually on different dates with only a few clicks!' ); ?>
 			</p>
 
-			<div class="postbot-anim"></div>
+			<div class="postbot-anim">
+				<video width="752" height="376" autoplay="autoplay" src="//postbot.co/postbot.mp4" type="video/mp4" loop="">
+				<object data="//postbot.co/postbot.mp4" width="752" height="376">
+				<embed src="//postbot.co/postbot.mp4" width="752" height="376">
+				Your browser does not support video
+				</object>
+				</video>
+			</div>
 
 			<div class="sign-button">
 				<a href="<?php echo SCHEDULE_URL; ?>?login">
