@@ -149,15 +149,18 @@ function disable_form_elements( status ) {
 
 function schedule_changed() {
 	var data = {
-		action:         'postbot_get_dates',
-		date:           $( 'input[name=schedule_date]' ).val(),
-		hour:           parseInt( $( 'input[name=schedule_time_hour]').val(), 10 ),
-		minute:         parseInt( $( 'input[name=schedule_time_minute]').val(), 10 ),
-		interval:       parseInt( $( 'select[name=schedule_interval]' ).val(), 10 ),
-		ignore_weekend: $( 'input[name=ignore_weekend]' ).is( ':checked' ) ? 1 : 0,
-		total:          $( '.schedule-item' ).length,
-		nonce:          postbot.nonce
+		action:  'postbot_get_dates',
+		total:   $( '.schedule-item' ).length,
+		nonce:   postbot.nonce
 	};
+
+	if ( $( 'input[name=schedule_date]' ).length > 0 ) {
+		data.date           = $( 'input[name=schedule_date]' ).val();
+		data.hour           = parseInt( $( 'input[name=schedule_time_hour]').val(), 10 );
+		data.minute         = parseInt( $( 'input[name=schedule_time_minute]').val(), 10 );
+		data.interval       = parseInt( $( 'select[name=schedule_interval]' ).val(), 10 );
+		data.ignore_weekend = $( 'input[name=ignore_weekend]' ).is( ':checked' ) ? 1 : 0;
+	}
 
 	$.post( postbot.ajax_url, data, function( response ) {
 		if ( response.error ) {
@@ -286,13 +289,16 @@ function setup_uploader() {
 		var data = {
 			action:         'postbot_uploading',
 			nonce:          postbot.nonce,
-			files:          [],
-			date:           $( 'input[name=schedule_date]' ).val(),
-			hour:           parseInt( $( 'input[name=schedule_time_hour]').val(), 10 ),
-			minute:         parseInt( $( 'input[name=schedule_time_minute]').val(), 10 ),
-			interval:       parseInt( $( 'select[name=schedule_interval]' ).val(), 10 ),
-			ignore_weekend: $( 'input[name=ignore_weekend]' ).is( ':checked' ) ? 1 : 0
+			files:          []
 		};
+
+		if ( $( 'input[name=schedule_date]' ).length > 0 ) {
+			data.date           = $( 'input[name=schedule_date]' ).val();
+			data.hour           = parseInt( $( 'input[name=schedule_time_hour]').val(), 10 );
+			data.minute         = parseInt( $( 'input[name=schedule_time_minute]').val(), 10 );
+			data.interval       = parseInt( $( 'select[name=schedule_interval]' ).val(), 10 );
+			data.ignore_weekend = $( 'input[name=ignore_weekend]' ).is( ':checked' ) ? 1 : 0;
+		}
 
 		disable_form_elements( true );
 		postbot_error.reset();
@@ -373,11 +379,10 @@ function setup_uploader() {
 
 function auto_save() {
 	if ( needs_saving ) {
-		$( 'input[name=schedule_nonce]' ).val( $( '#blog-' + $( 'input[name=schedule_on_blog]' ).val() ).data( 'nonce' ) );
-
 		$( 'form' ).ajaxSubmit( {
 			data: {
 				action: 'postbot_autosave',
+				nonce: postbot.nonce
 			},
 			dataType: 'json',
 			success: function( result ) {

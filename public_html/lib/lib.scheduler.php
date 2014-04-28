@@ -394,11 +394,16 @@ class Postbot_Scheduler {
 	}
 
 	public function schedule_get_dates( $values ) {
-		$total = min( intval( $values['total'] ), POSTBOT_MAX_SCHEDULE );
-		$start = Postbot_Time::get_start_time( strtotime( $values['date'] ), $values['hour'], $values['minute'] );
-		$skip  = false;
-		$times = array();
-		$interval = intval( $values['interval'] );
+		$total    = min( intval( $values['total'] ), POSTBOT_MAX_SCHEDULE );
+		$times    = array();
+		$start    = time();
+		$skip     = false;
+		$interval = 1;
+
+		if ( isset( $values['date'] ) ) {
+			$start = Postbot_Time::get_start_time( strtotime( $values['date'] ), $values['hour'], $values['minute'] );
+			$interval = intval( $values['interval'] );
+		}
 
 		if ( isset( $values['ignore_weekend'] ) && intval( $values['ignore_weekend'] ) === 1 )
 			$skip = true;
@@ -613,12 +618,12 @@ class Postbot_Auto extends Postbot_Scheduler {
 			$this->skip_weekend = intval( $parts[2] );
 			$this->auto_publish = intval( $parts[3] );
 
-			if ( $date > time() + $gmt_offset )
-				$this->start_date = $date;
-
 			if ( $this->publish_immediately() )
 				$this->clear_publish_immediatley();
 		}
+
+		if ( $date > time() + $gmt_offset )
+			$this->start_date = $date;
 	}
 
 	public function get_start_date() {
@@ -655,7 +660,7 @@ class Postbot_Auto extends Postbot_Scheduler {
 		return false;
 	}
 
-	public function store_for_later( Postbot_Blog $blog, array $data, array $media_items ) {
+	public function store_for_later( array $data, array $media_items ) {
 		global $wpdb;
 
 		$total = 0;
@@ -686,8 +691,8 @@ class Postbot_Auto extends Postbot_Scheduler {
 			}
 		}
 
-		$this->user->set_last_blog_id( $blog->get_blog_id() );
-		$this->store_time_for_later( strtotime( $data['schedule_date'] ), $data['schedule_time_hour'], $data['schedule_time_minute'], intval( $data['schedule_interval'] ), isset( $data['ignore_weekend'] ) ? true : false );
+		if ( isset( $data['schedule_date'] ) )
+			$this->store_time_for_later( strtotime( $data['schedule_date'] ), $data['schedule_time_hour'], $data['schedule_time_minute'], intval( $data['schedule_interval'] ), isset( $data['ignore_weekend'] ) ? true : false );
 		return $total;
 	}
 
@@ -725,13 +730,16 @@ class Postbot_Auto extends Postbot_Scheduler {
 
 		if ( count( $this->pending ) > 0 ) {
 			foreach ( $this->pending AS $item ) {
-				foreach ( $media_items AS $media_item ) {
+				foreach ( $media_items AS $pos => $media_item ) {
 					if ( $media_item->get_id() == $item->media_id ) {
 						$new_order[] = $media_item;
+						unset( $media_items[$pos] );
 						break;
 					}
 				}
 			}
+
+			$new_order = array_merge( $new_order, $media_items );
 		}
 		else
 			$new_order = $media_items;

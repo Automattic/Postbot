@@ -78,7 +78,7 @@ function handle_set_blog( Postbot_User $user, $media_items ) {
 		$last_blog = $user->get_last_blog();
 		if ( $last_blog ) {
 			return array(
-				'button' => sprintf( _n( 'Schedule %d post on %s', 'Schedule %d posts on %s', count( $media_items ) ), count( $media_items ), $last_blog->get_blog_name() )
+				'button' => get_schedule_button_text( $user, count( $media_items ) )
 			);
 		}
 
@@ -91,19 +91,15 @@ function handle_set_blog( Postbot_User $user, $media_items ) {
 }
 
 function handle_autosave( Postbot_User $user, $media_items ) {
-	if ( wp_verify_nonce( $_POST['schedule_nonce'], 'scheduler-blog-'.$_POST['schedule_on_blog'] ) ) {
+	if ( wp_verify_nonce( $_POST['nonce'], 'scheduler' ) ) {
+		$auto  = new Postbot_Auto( $user );
+		$total = $auto->store_for_later( $_POST, $media_items );
+
 		$blog = $user->get_blog( intval( $_POST['schedule_on_blog'] ) );
+		if ( $blog )
+			$user->set_last_blog_id( $blog->get_blog_id() );
 
-		if ( $blog ) {
-			$auto = new Postbot_Auto( $user );
-			$total = $auto->store_for_later( $blog, $_POST, $media_items );
-
-			return array( 'saved' => $total );
-		}
-		else {
-			postbot_log_error( $user->get_user_id(), 'No access to blog while saving', print_r( $_POST, true ) );
-			return array( 'error' => __( 'You have no access to that blog.' ) );
-		}
+		return array( 'saved' => $total );
 	}
 
 	postbot_log_error( $user->get_user_id(), 'Invalid nonce check autosaving', print_r( $_POST, true ) );
@@ -132,18 +128,26 @@ function handle_authorize_blog( Postbot_User $user ) {
 }
 
 function handle_pre_upload( Postbot_User $user, array $media_items ) {
-	$interval = intval( $_POST['interval'] );
-	$time     = intval( strtotime( $_POST['date'] ) );
 	$ignore   = false;
+	$time     = time();
+	$interval = 1;
+	$hour     = date( 'H' );
+	$minute   = date( 'i' );
+
+	if ( isset( $_POST['date'] ) ) {
+		$interval = intval( $_POST['interval'] );
+		$time     = intval( strtotime( $_POST['date'] ) );
+		$hour     = intval( $_POST['hour'] );
+		$minute   = intval( $_POST['minute'] );
+	}
 
 	if ( isset( $_POST['ignore_weekend'] ) && intval( $_POST['ignore_weekend'] ) === 1 )
 		$ignore = true;
 
 	if ( wp_verify_nonce( $_POST['nonce'], 'scheduler' ) ) {
 		$file_data  = array();
-		$start_date = Postbot_Time::get_start_time( $time, intval( $_POST['hour'] ), intval( $_POST['minute'] ) );
+		$start_date = Postbot_Time::get_start_time( $time, $hour, $minute );
 		$time       = new Postbot_Time( $start_date, $interval, $ignore );
-		$blog       = $user->get_last_blog();
 
 		foreach ( $_POST['files'] AS $pos => $file ) {
 			$new_data = array();
@@ -162,13 +166,20 @@ function handle_pre_upload( Postbot_User $user, array $media_items ) {
 		$file_pos = count( $media_items ) + count( $_POST['files'] );
 
 		return array(
-			'files' => $file_data,
-			'button' => sprintf( _n( 'Schedule %d post on %s', 'Schedule %d posts on %s', $file_pos ), $file_pos, $blog->get_blog_name() ),
+			'files'  => $file_data,
+			'button' => get_schedule_button_text( $user, $file_pos ),
 		);
 	}
 
 	postbot_log_error( $user->get_user_id(), 'Invalid nonce check getting upload data', print_r( $_POST, true ) );
 	return array( 'error' => __( 'Unable to perform action. Please refresh your browser and try again.' ) );
+}
+
+function get_schedule_button_text( $user, $pos ) {
+	$blog = $user->get_last_blog();
+	if ( $blog )
+		return sprintf( _n( 'Schedule %d post on %s', 'Schedule %d posts on %s', $pos ), $pos, $blog->get_blog_name() );
+	return false;
 }
 
 function handle_delete_item( Postbot_User $user ) {
@@ -193,31 +204,43 @@ function handle_delete_item( Postbot_User $user ) {
 
 function handle_get_dates( Postbot_User $user ) {
 	$total    = intval( $_POST['total'] );
-	$interval = intval( $_POST['interval'] );
-	$time     = intval( strtotime( $_POST['date'] ) );
+	$time     = time();
+	$interval = 1;
+	$hour     = date( 'H' );
+	$minute   = date( 'i' );
+
+	if ( isset( $_POST['date'] ) ) {
+		$interval = intval( $_POST['interval'] );
+		$time     = intval( strtotime( $_POST['date'] ) );
+		$hour     = intval( $_POST['hour'] );
+		$minute   = intval( $_POST['minute'] );
+	}
 
 	// AJAX handler for updating schedule times
 	if ( wp_verify_nonce( $_POST['nonce'], 'scheduler' ) ) {
 		$blog       = $user->get_last_blog();
 		$scheduler  = new Postbot_Scheduler();
-		$start_date = Postbot_Time::get_start_time( $time, intval( $_POST['hour'] ), intval( $_POST['minute'] ) );
+		$start_date = Postbot_Time::get_start_time( $time, $hour, $minute );
 
 		$schedule_text = _n( 'Schedule Post', 'Schedule Posts', $total );
 
-		if ( $total == 1 ) {
-			$body_text_2 = sprintf( __( 'The post will go out on %s.' ), date_i18n( 'l, F jS', $start_date ) );
-			$body_text_1 = sprintf( __( '%d post to be scheduled on %s.' ), $total, esc_html( $blog->get_blog_name() ) );
-		}
-		else {
-			$body_text_1 = sprintf( _n( '%d posts to be scheduled on %s, with %d day between each post.', '%d posts to be scheduled on %s, with %d days between each post.', $interval ), $total, esc_html( $blog->get_blog_name() ), $interval );
-			$body_text_2 = sprintf( __( 'The first post will go out on %s.' ), date_i18n( 'l, F jS', $start_date ) );
+		$body_text_1 = $body_text_2 = false;
+		if ( $blog ) {
+			if ( $total == 1 ) {
+				$body_text_2 = sprintf( __( 'The post will go out on %s.' ), date_i18n( 'l, F jS', $start_date ) );
+				$body_text_1 = sprintf( __( '%d post to be scheduled on %s.' ), $total, esc_html( $blog->get_blog_name() ) );
+			}
+			else {
+				$body_text_1 = sprintf( _n( '%d posts to be scheduled on %s, with %d day between each post.', '%d posts to be scheduled on %s, with %d days between each post.', $interval ), $total, esc_html( $blog->get_blog_name() ), $interval );
+				$body_text_2 = sprintf( __( 'The first post will go out on %s.' ), date_i18n( 'l, F jS', $start_date ) );
+			}
 		}
 
 		$response = array(
 			'text'            => date_i18n( 'l, F jS', $start_date ),
 			'time'            => date_i18n( 'H:i', $start_date ),
 			'dates'           => $scheduler->schedule_get_dates( $_POST ),
-			'button'          => sprintf( _n( 'Schedule %d post on %s', 'Schedule %d posts on %s', $total ), $total, $blog->get_blog_name() ),
+			'button'          => get_schedule_button_text( $user, $total ),
 			'body_text_1'     => $body_text_1,
 			'body_text_2'     => $body_text_2,
 			'schedule_text'   => $schedule_text,
@@ -225,7 +248,7 @@ function handle_get_dates( Postbot_User $user ) {
 		);
 
 		$auto = new Postbot_Auto( $user );
-		$auto->store_time_for_later( $start_date, intval( $_POST['hour'] ), intval( $_POST['minute'] ), $interval, intval( $_POST['ignore_weekend'] ) === 1 ? true : false );
+		$auto->store_time_for_later( $start_date, $hour, $minute, $interval, isset( $_POST['ignore_weekend'] ) && intval( $_POST['ignore_weekend'] ) === 1 ? true : false );
 
 		return $response;
 	}
@@ -257,8 +280,9 @@ function handle_schedule( Postbot_User $user, $media_items ) {
 				return $scheduled;
 			}
 
-			$auto->store_for_later( $blog, $_POST, $media_items );
+			$auto->store_for_later( $_POST, $media_items );
 			$auto->set_publish_immediatley();
+			$user->set_last_blog_id( $blog->get_blog_id() );
 
 			return array( 'redirect' => WPCOM_Rest_Client::get_blog_auth_url( $blog->get_blog_url() ) );
 		}
