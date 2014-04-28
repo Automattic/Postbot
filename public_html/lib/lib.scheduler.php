@@ -620,10 +620,10 @@ class Postbot_Auto extends Postbot_Scheduler {
 
 			if ( $this->publish_immediately() )
 				$this->clear_publish_immediatley();
-		}
 
-		if ( $date > time() + $gmt_offset )
-			$this->start_date = $date;
+			if ( $date > time() + $gmt_offset )
+				$this->start_date = $date;
+		}
 	}
 
 	public function get_start_date() {
