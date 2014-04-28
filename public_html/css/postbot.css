@@ -55,7 +55,7 @@ a:visited {
 }
 
 .container {
-	max-width: 94	0px;
+	max-width: 940px;
 	margin: 0 auto;
 	position: relative;
 	box-sizing: border-box;
@@ -765,6 +765,7 @@ input[type=submit]:active, button:active, a.btn:active {
 
 .schedule-item.ui-sortable-helper {
 	padding-right: 0px;
+	max-height: 110px;
 }
 
 
