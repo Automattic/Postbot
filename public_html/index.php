@@ -10,7 +10,11 @@ include dirname( __FILE__ ).'/lib/lib.actions.php';
 $user = Postbot_User::get_from_cookie();
 
 if ( !$user ) {
-	include dirname( __FILE__ ).'/wpcc.php';
+	if ( isset( $_SERVER['HTTP_X_REQUESTED_WITH'] ) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest' )
+		echo json_encode( array( 'error' => __( 'You are no longer logged in. Please refresh the page and try again.' ) ) );
+	else
+		include dirname( __FILE__ ).'/wpcc.php';
+
 	die();
 }
 
@@ -26,7 +30,11 @@ $media_items  = $auto_publish->reorder_items( $media_items );
 
 if ( isset( $_GET['msg'] ) ) {
 	if ( $_GET['msg'] == 'failedauth' )
-		$notice = __( 'Unable to authorize a connection to your blog. Please try again.' );
+		$notice = __( 'Unable to authorize your blog. Please try again.' );
+	elseif ( $_GET['msg'] == 'unauthorized' )
+		$notice = sprintf( __( '<p>Unable to authorize your blog.</p><p>If using <em>WordPress.org</em> with Jetpack then please enable the <a href="%s">JSON API module</a>.</p><p>If using <em>WordPress.com</em> then your blog cannot be used, please contact <a href="%s">support</a>.</p>' ), 'http://jetpack.me/support/json-api/', 'http://en.support.wordpress.com' );
+	elseif ( $_GET['msg'] == 'jetpack' && isset( $_GET['jetpack'] ) )
+		$notice = sprintf( __( 'Failed to connect using Jetpack. Refer to this <a href="%s">Jetpack support guide</a> for more details:<br/>' ), 'http://jetpack.me/support/getting-started-with-jetpack/what-do-these-error-messages-mean/' ).'<code>'.esc_html( $_GET['jetpack'] ).'</code>';
 	elseif ( $_GET['msg'] == 'failedschedule' )
 		$notice = __( 'Unable to publish to blog - your authorization may have been revoked. Please re-authorize the blog and try again.' );
 }
@@ -88,7 +96,7 @@ $scripts_js  = postbot_bundled_javascript();
 
 	<div class="container">
 		<div class="alert alert-danger" id="message"<?php if ( $notice === false ) echo ' style="display: none"' ?>>
-			<?php echo esc_html( $notice ); ?>
+			<?php echo $notice; ?>
 		</div>
 
 		<form action="" method="POST" enctype="multipart/form-data" class="media-upload-form form-inline">

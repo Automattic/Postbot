@@ -121,16 +121,17 @@ class Postbot_Post {
 
 		$local_copy = postbot_get_photo( $media->get_stored_name() );
 		if ( $local_copy ) {
-			$post_data = array_merge( $this->post_data, array(
-				'date'    => date( 'Y-m-d\TH:i:s', $time ),
-				'media[]' => '@'.$local_copy.';filename='.$this->get_media_name( $media->get_filename(), $this->post_data['title'] ),
-			) );
+			$post_data = $this->post_data;
+			$post_data['media[]'] = '@'.$local_copy.';filename='.$this->get_media_name( $media->get_filename(), $this->post_data['title'] );
 
-			$min_offset = ceil( abs( $gmt_offset ) ) - abs( $gmt_offset );
-			if ( $min_offset > 0 )
-				$min_offset = ( 60 * ( 1 - $min_offset ) );
+			if ( $time > time() + ( $gmt_offset * 60 * 60 ) ) {
+				$post_data['date'] = date( 'Y-m-d\TH:i:s', $time );
+				$min_offset = ceil( abs( $gmt_offset ) ) - abs( $gmt_offset );
+				if ( $min_offset > 0 )
+					$min_offset = ( 60 * ( 1 - $min_offset ) );
 
-			$post_data['date'] .= sprintf( '%s%02s:%02d', $gmt_offset < 0 ? '-' : '+', abs( intval( floor( $gmt_offset ) ) ), $min_offset );
+				$post_data['date'] .= sprintf( '%s%02s:%02d', $gmt_offset < 0 ? '-' : '+', abs( intval( floor( $gmt_offset ) ) ), $min_offset );
+			}
 
 			$result = $client->new_post( $this->blog_id, $post_data );
 
@@ -258,12 +259,13 @@ class Postbot_Blog {
 			if ( $blog && !is_wp_error( $blog ) ) {
 				$blog = Postbot_Blog::save( $user->user_id, $access->blog_id, $blog, $access->access_token );
 				$user->set_last_blog_id( $access->blog_id );
+				return true;
 			}
 
-			return true;
+			return $blog;
 		}
 
-		return false;
+		return $access;
 	}
 
 	public static function extract_blavatar( $details ) {
@@ -524,7 +526,9 @@ class Postbot_User {
 		}
 
 		if ( $user ) {
-			Postbot_Blog::save( $user_details->ID, $user_details->primary_blog, $blog_details );
+			if ( $blog_details )
+				Postbot_Blog::save( $user_details->ID, $user_details->primary_blog, $blog_details );
+
 			self::set_auth_password( $user_details->ID, $data['password'] );
 			return true;
 		}
@@ -595,16 +599,22 @@ class Postbot_Auto extends Postbot_Scheduler {
 		$this->user = $user;
 		$this->start_date = mktime( date( 'H' ), 0, 0, date( 'n' ), date( 'j' ) + 1, date( 'Y' ) );
 
-		if ( $blog )
-			$this->start_date += ( $blog->get_gmt_offset() * 60 * 60 );
+		$gmt_offset = 0;
+		if ( $blog ) {
+			$gmt_offset = ( $blog->get_gmt_offset() * 60 * 60 );
+			$this->start_date += $gmt_offset;
+		}
 
 		if ( isset( $_COOKIE[POSTBOT_COOKIE_SETTING] ) ) {
 			$parts = explode( '|', $_COOKIE[POSTBOT_COOKIE_SETTING] );
 
-			$this->start_date   = intval( $parts[0] );
+			$date               = intval( $parts[0] );
 			$this->interval     = intval( $parts[1] );
 			$this->skip_weekend = intval( $parts[2] );
 			$this->auto_publish = intval( $parts[3] );
+
+			if ( $date > time() + $gmt_offset )
+				$this->start_date = $date;
 
 			if ( $this->publish_immediately() )
 				$this->clear_publish_immediatley();
@@ -650,7 +660,7 @@ class Postbot_Auto extends Postbot_Scheduler {
 
 		$total = 0;
 
-		foreach ( $data['schedule_title'] AS $media_id => $post_title ) {
+		foreach ( (array)$data['schedule_title'] AS $media_id => $post_title ) {
 			$media = $this->get_media_item( $media_items, $media_id );
 
 			if ( $media ) {

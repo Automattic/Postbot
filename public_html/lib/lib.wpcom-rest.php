@@ -59,8 +59,8 @@ class WPCOM_Rest_Client {
 		$decoded = json_decode( $response );
 
 		if ( $decoded ) {
-			if ( isset( $decoded->error ) )
-				return new WP_Error( 'new-post', $decoded->message );
+			if ( isset( $decoded->error ) && ( isset( $decoded->message ) || isset( $decoded->error_description ) ) )
+				return new WP_Error( $decoded->error, isset( $decoded->error_description ) ? $decoded->error_description : $decoded->message );
 
 			return $decoded;
 		}

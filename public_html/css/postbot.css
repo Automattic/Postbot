@@ -83,6 +83,15 @@ a:visited {
 	margin-bottom: 40px;
 }
 
+#message p {
+	margin: 0;
+}
+
+#message a {
+	font-weight: bold;
+	color: #fff;
+}
+
 /* Header */
 
 .navbar {
