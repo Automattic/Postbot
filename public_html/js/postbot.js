@@ -108,16 +108,16 @@ function slow_publish_schedule( pos ) {
 		},
 		dataType: 'json',
 		success: function( result ) {
-			if ( result.error ) {
+			if ( result.redirect ) {
+				window.location = result.redirect;
+				return;
+			}
+			else if ( result.error ) {
 				$( '#schedule-progress' ).modal( 'hide' );
 
 				postbot_error.add( result.error );
 
 				disable_form_elements( false );
-				return;
-			}
-			else if ( result.redirect ) {
-				window.location = result.redirect;
 				return;
 			}
 
