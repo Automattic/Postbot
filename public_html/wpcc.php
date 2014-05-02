@@ -75,11 +75,11 @@ if ( isset( $_GET['msg'] ) ) {
 			</p>
 
 			<div class="postbot-anim">
-				<video width="752" height="376" autoplay="autoplay" src="//postbot.co/postbot.mp4" type="video/mp4" loop="">
-				<object data="//postbot.co/postbot.mp4" width="752" height="376">
-				<embed src="//postbot.co/postbot.mp4" width="752" height="376">
-				Your browser does not support video
-				</object>
+				<video width="752" height="376" autoplay="autoplay" src="//postbot.co/postbot.mp4" type="video/mp4" loop="" id="video">
+					<object data="//postbot.co/postbot.mp4" width="752" height="376">
+						<embed src="//postbot.co/postbot.mp4" width="752" height="376"/>
+						Your browser does not support video
+					</object>
 				</video>
 			</div>
 
@@ -96,5 +96,12 @@ if ( isset( $_GET['msg'] ) ) {
 
 		<a id="support-link" href="http://en.support.wordpress.com/postbot/" title="<?php esc_attr_e( 'Help' ); ?>"><?php _e( 'Help' ); ?></a>
 	</div>
+
+	<script type="text/javascript">
+		var video = document.getElementById('video');
+		window.addEventListener('load',function(){
+			video.setAttribute("controls","controls");
+		},false);
+	</script>
 </body>
 </html>
