@@ -400,6 +400,11 @@ function auto_save() {
 jQuery( document ).ready( function($) {
 	if ( $( '#upload-help').length > 0 )
 		setup_uploader();
+	else {
+		$( document ).bind( 'drop dragover', function( e ) {
+			e.preventDefault();
+		} );
+	}
 
 	$( 'a.swap-blog' ).on( 'click', function( e ) {
 		$( 'input[name=schedule_on_blog]' ).val( $( this ).data( 'blog-id' ) );
