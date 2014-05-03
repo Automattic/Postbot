@@ -76,11 +76,11 @@ if ( isset( $_GET['msg'] ) ) {
 
 			<div class="postbot-anim">
 				<video width="752" height="376" autoplay="autoplay" loop="" id="video">
-					<source src="//postbot.co/postbot.mp4" type="video/mp4">
-					<source src="http://moc.co/sandbox/test/postbot.webm" type="video/webm">
+					<source src="/postbot.mp4" type="video/mp4">
+					<source src="/postbot.webm" type="video/webm">
 
-					<object data="//postbot.co/postbot.mp4" width="752" height="376">
-						<embed src="//postbot.co/postbot.mp4" width="752" height="376"/>
+					<object data="/postbot.mp4" width="752" height="376">
+						<embed src="/postbot.mp4" width="752" height="376"/>
 						Your browser does not support video
 					</object>
 				</video>
