@@ -99,6 +99,9 @@ class Postbot_Post {
 
 		$this->post_data = array_map( 'trim', $this->post_data );
 		$this->post_data = array_map( 'stripslashes', $this->post_data );
+
+		if ( stripos( $this->post_data['content'], '[image]' ) === false )
+			$this->post_data['content'] .= "\n[image]";
 	}
 
 	private function get_media_name( $filename, $post_title ) {
@@ -153,7 +156,7 @@ class Postbot_Post {
 	}
 
 	private function replace_image( $access_token, $existing_post ) {
-		$img = sprintf( '<a href="%s"><img src="%s" alt="%s" width="%d" height="%d" class="aligncenter size-full wp-image-%d" /></a>', esc_url( $this->attachment->URL ), esc_url( $this->attachment->URL ), esc_attr( $this->post_data['title'] ), $this->attachment->width, $this->attachment->height, $this->attachment->ID );
+		$img = sprintf( '<a href="%s"><img src="%s" alt="%s" class="alignnone size-full wp-image-%d" /></a>', esc_url( $this->attachment->URL ), esc_url( $this->attachment->URL ), esc_attr( $this->post_data['title'] ), $this->attachment->ID );
 		$content = str_replace( '[image]', $img, $this->post_data['content'] );
 
 		$client = new WPCOM_Rest_Client( $access_token );
