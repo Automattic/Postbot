@@ -39,3 +39,15 @@ Installation
 - Create another oAuth app for the WordPress.com blog authorisation. Set the `redirect_uri` to be the `index.php` file in Postbot.
 - Edit `postbot-config.php` and set the `OAUTH_KEY`, `OAUTH_SECRET`, and `OAUTH_REDIRECT` to the details in this oAuth app
 - Edit other settings in `postbot-config.php` as appropriate
+
+Vagrant
+=======
+
+Postbot comes with a Vagrantfile that will create a working Postbot environment. To use:
+
+1. Install [Vagrant](http://www.vagrantup.com/)
+2. Install [VirtualBox](https://www.virtualbox.org)
+3. Install [HostsUpdater plugin](https://github.com/cogitatio/vagrant-hostsupdater)
+4. Go to the Postbot root directory and run `vagrant up`
+
+Postbot is available from `local.postbot.dev`
