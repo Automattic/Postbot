@@ -16,8 +16,8 @@ function wp_salt() {
 	return POSTBOT_LOGIN_SALT;
 }
 
-require dirname( dirname( __FILE__ ) ) . '/wordpress/wp-load.php';
-require dirname( dirname( __FILE__ ) ) . '/wordpress/wp-includes/class-phpass.php';
+require POSTBOT_WP_PATH . '/wp-load.php';
+require POSTBOT_WP_PATH . '/wp-includes/class-phpass.php';
 
 if ( !class_exists( 'WPCOM_OAuth_Bearer_Client' ) )
 	include dirname( __FILE__ ).'/lib/lib.wpcc.php';
