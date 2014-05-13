@@ -274,7 +274,7 @@ li.dropdown-blog.selected a {
 	margin-left: 20px;
 }
 
-#dropdown-connect {
+#dropdown-connect, #dropdown-disconnect {
 	font-style: italic;
 }
 

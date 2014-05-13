@@ -49,6 +49,12 @@ function display_navigation_menu( Postbot_User $user, $last_blog, $show_pending_
 								<a href="<?php echo esc_url( OAUTH_AUTHORIZE_ENDPOINT ); ?>"><?php _e( 'Connect another blog' ); ?></a>
 							</li>
 
+							<?php if ( $last_blog ) : ?>
+							<li id="dropdown-disconnect">
+								<a href="?action=disconnect&amp;nonce=<?php echo wp_create_nonce( 'scheduler-disconnect-'.$last_blog->get_blog_id() ); ?>"><?php _e( 'Disconnect current blog' ); ?></a>
+							</li>
+							<?php endif; ?>
+
 							<li id="dropdown-logout"><a href="?action=logout"><?php _e( 'Log out' ); ?></a></li>
 						</ul>
 					</li>

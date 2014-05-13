@@ -31,6 +31,8 @@ function handle_get_actions( Postbot_User $user ) {
 		handle_authorize_blog( $user );
 	elseif ( isset( $_GET['action'] ) && $_GET['action'] == 'logout' )
 		handle_logout( $user );
+	elseif ( isset( $_GET['action'] ) && $_GET['action'] == 'disconnect' )
+		handle_disconnect( $user );
 
 	return false;
 }
@@ -67,6 +69,16 @@ function handle_logout( Postbot_User $user ) {
 	$user->logout();
 	wp_safe_redirect( SCHEDULE_URL );
 	die();
+}
+
+function handle_disconnect( Postbot_User $user ) {
+	$last_blog = $user->get_last_blog();
+
+	if ( $last_blog && wp_verify_nonce( $_GET['nonce'], 'scheduler-disconnect-'.$last_blog->get_blog_id() ) ) {
+		Postbot_Blog::remove_for_user( $user->get_user_id(), $last_blog->get_blog_id() );
+		wp_safe_redirect( SCHEDULE_URL );
+		die();
+	}
 }
 
 function handle_set_blog( Postbot_User $user, $media_items ) {
