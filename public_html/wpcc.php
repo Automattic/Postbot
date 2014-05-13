@@ -9,7 +9,7 @@ if ( !class_exists( 'Postbot_User' ) ) {
 $oauth_client = new WPCOM_OAuth_Bearer_Client( OAUTH_WPCC_KEY, OAUTH_WPCC_SECRET, OAUTH_WPCC_REDIRECT_URL );
 
 if ( isset( $_GET[ 'code' ] ) ) {
-	$fail = 'failed';
+	$failed = 'failed';
 
 	try {
 		$request_token = $oauth_client->get_request_token();
