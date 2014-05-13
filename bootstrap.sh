@@ -10,7 +10,7 @@ WP_CONFIG_FILE=/var/www/wordpress/wp-config.php
 PB_CONFIG_FILE=/vagrant/public_html/postbot-config.php
 PB_LOCAL_FILE=/vagrant/public_html/postbot-local.php
 PB_UPLOAD_DIR=/vagrant/public_html/uploads
-PB_URL=local.postbot.dev
+PB_URL=local.postbot.com
 
 VHOST=$(cat <<EOF
 <VirtualHost *:80>
@@ -19,6 +19,23 @@ VHOST=$(cat <<EOF
   <Directory "/var/www/postbot/public_html">
     AllowOverride All
   </Directory>
+</VirtualHost>
+
+<VirtualHost *:443>
+	ServerName localhost
+
+	DocumentRoot /var/www/postbot/public_html
+	SSLEngine on
+
+	SSLCertificateFile	/etc/ssl/certs/ssl-cert-snakeoil.pem
+	SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
+	<FilesMatch "\.(cgi|shtml|phtml|php)$">
+			SSLOptions +StdEnvVars
+	</FilesMatch>
+	<Directory />
+		AllowOverride All
+		Options FollowSymLinks
+	</Directory>
 </VirtualHost>
 EOF
 )
@@ -149,7 +166,8 @@ then
     echo "CREATE USER '$WP_USERNAME'@'localhost' IDENTIFIED BY '$WP_PASSWORD'" | mysql -uroot -prootpass
     echo "CREATE DATABASE $WP_DB_NAME" | mysql -uroot -prootpass
     echo "GRANT ALL ON $WP_DB_NAME.* TO '$WP_USERNAME'@'localhost'" | mysql -uroot -prootpass
-    echo "flush privileges" | mysql -uroot -prootpass
+    echo "GRANT ALL ON $WP_DB_NAME.* TO '$WP_USERNAME'@'%';" | mysql -uroot -prootpass
+    echo "FLUSH PRIVILEGES" | mysql -uroot -prootpass
 
 	sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mysql/my.cnf
 	service mysql restart
@@ -172,6 +190,7 @@ then
 	ln -fs /vagrant /var/www/postbot
 
 	a2enmod rewrite
+	a2enmod ssl
 	a2enmod php5
 
 	sed -i '/AllowOverride None/c AllowOverride All' /etc/apache2/sites-available/default
@@ -233,6 +252,6 @@ then
 
 	sed -i 's/\/path\/to\/wordpress/\/var\/www\/wordpress/' $PB_CONFIG_FILE
 	sed -i 's/\/postbot\/uploads/\/vagrant\/public_html\/uploads/' $PB_CONFIG_FILE
-	sed -i 's/\/postbot\///' $PB_CONFIG_FILE
+	sed -i 's/\/postbot\/\//' $PB_CONFIG_FILE
 	sed -i "s/YOURDOMAIN/$PB_URL/" $PB_CONFIG_FILE
 fi
