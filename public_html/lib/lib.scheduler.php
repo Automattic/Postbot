@@ -94,9 +94,6 @@ class Postbot_Post {
 			'tags'    => $tags,
 		);
 
-		if ( empty( $this->post_data['title'] ) )
-			$this->post_data['title'] = __( 'Photo' );
-
 		$this->post_data = array_map( 'trim', $this->post_data );
 		$this->post_data = array_map( 'stripslashes', $this->post_data );
 
