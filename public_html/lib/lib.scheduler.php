@@ -109,6 +109,9 @@ class Postbot_Post {
 			$filename = str_replace( ' ', '-', $filename );
 
 			$filename = trim( $filename );
+			if ( strlen( $filename ) == 0 )
+				$filename = 'image';
+
 			$filename .= '.'.$parts['extension'];
 		}
 
