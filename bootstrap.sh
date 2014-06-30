@@ -251,7 +251,7 @@ then
 	cp /vagrant/postbot-local-wp.php $PB_LOCAL_FILE
 
 	sed -i 's/\/path\/to\/wordpress/\/var\/www\/wordpress/' $PB_CONFIG_FILE
-	sed -i 's/\/postbot\/uploads/\/vagrant\/public_html\/uploads/' $PB_CONFIG_FILE
+	sed -i 's/\/postbot\/uploads/\/uploads\//' $PB_CONFIG_FILE
 	sed -i 's/\/postbot\/\//' $PB_CONFIG_FILE
 	sed -i "s/YOURDOMAIN/$PB_URL/" $PB_CONFIG_FILE
 fi
