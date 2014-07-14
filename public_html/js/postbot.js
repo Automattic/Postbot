@@ -287,9 +287,9 @@ function setup_uploader() {
 
 	uploader.bind( 'FilesAdded', function( up, files ) {
 		var data = {
-			action:         'postbot_uploading',
-			nonce:          postbot.nonce,
-			files:          []
+			action: 'postbot_uploading',
+			nonce:  postbot.nonce,
+			files:  []
 		};
 
 		if ( $( 'input[name=schedule_date]' ).length > 0 ) {
@@ -329,6 +329,7 @@ function setup_uploader() {
 			up.start();
 			update_body_class();
 			set_tab_order();
+			uploader.refresh();
 		}, 'json' );
 	} );
 
