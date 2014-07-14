@@ -287,7 +287,13 @@ function handle_schedule( Postbot_User $user, $media_items ) {
 				}
 
 				do_action( 'postbot_scheduled', $scheduled );
-				$auto->clear();
+
+				foreach ( $scheduled AS $scheduled_item ) {
+					$auto->clear_media( $scheduled_item['media_id'] );
+				}
+
+				if ( count( $media_items ) <= 1 )
+					$auto->clear_stored();
 
 				return $scheduled;
 			}

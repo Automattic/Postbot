@@ -722,12 +722,14 @@ class Postbot_Auto extends Postbot_Scheduler {
 		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->postbot_auto} WHERE media_id=%d", $media->get_id () ) );
 	}
 
-	public function clear() {
+	public function clear_media( $media_id ) {
 		global $wpdb;
 
-		setcookie( POSTBOT_COOKIE_SETTING, '', time() - YEAR_IN_SECONDS, POSTBOT_COOKIE_PATH, POSTBOT_COOKIE_DOMAIN, POSTBOT_COOKIE_SSL, true );
+		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->postbot_auto} WHERE user_id=%d AND media_id=%d", $this->user->get_user_id(), $media_id ) );
+	}
 
-		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->postbot_auto} WHERE user_id=%d", $this->user->get_user_id() ) );
+	public function clear_stored() {
+		setcookie( POSTBOT_COOKIE_SETTING, '', time() - YEAR_IN_SECONDS, POSTBOT_COOKIE_PATH, POSTBOT_COOKIE_DOMAIN, POSTBOT_COOKIE_SSL, true );
 	}
 
 	public function reorder_items( array $media_items ) {
