@@ -165,7 +165,8 @@ class Postbot_Photo {
 		$filename = str_replace( array( '@' ), ' ', $filename );
 
 		$camera_filenames = array(
-			'/^\w{1,3}\d+/'
+			'/^\w{1,3}\d+/',
+			'/\d{6,}/',
 		);
 
 		foreach ( $camera_filenames AS $regex ) {
