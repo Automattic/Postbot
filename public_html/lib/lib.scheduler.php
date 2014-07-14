@@ -357,6 +357,9 @@ class Postbot_Scheduler {
 				$wpdb->update( $wpdb->postbot_photos, array( 'scheduled_at' => current_time( 'mysql' ), 'posted_id' => $posted_id ), array( 'media_id' => $media_id ) );
 
 				$result['media_id'] = $media_id;
+				if ( empty( $result['title'] ) )
+					$result['title'] = __( '&lt;untitled post&gt;' );
+
 				$scheduled[] = array_map( 'stripslashes', $result );
 
 				$pos++;
