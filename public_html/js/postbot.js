@@ -236,7 +236,7 @@ function setup_uploader() {
 			mime_types: [
 				{
 					title : postbot.upload_prompt,
-					extensions : 'jpg,gif,png'
+					extensions : 'jpg,gif,png,jpeg'
 				},
 			]
 		},
