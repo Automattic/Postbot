@@ -1,0 +1,4 @@
+.vagrant
+public_html/postbot-config.php
+public_html/postbot-local.php
+public_html/uploads/
