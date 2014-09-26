@@ -49,5 +49,6 @@ Postbot comes with a Vagrantfile that will create a working Postbot environment.
 2. Install [VirtualBox](https://www.virtualbox.org)
 3. Install [HostsUpdater plugin](https://github.com/cogitatio/vagrant-hostsupdater)
 4. Go to the Postbot root directory and run `vagrant up`
+5. Make sure that the `public_html/uploads/` folder is writeable. You can run `chmod 777 public_html/uploads/` from the host machine.
 
 Postbot is available from `local.postbot.dev`
