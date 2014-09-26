@@ -252,6 +252,6 @@ then
 
 	sed -i 's/\/path\/to\/wordpress/\/var\/www\/wordpress/' $PB_CONFIG_FILE
 	sed -i 's/\/postbot\/uploads/\/uploads\//' $PB_CONFIG_FILE
-	sed -i 's/\/postbot\/\//' $PB_CONFIG_FILE
+	sed -i 's/\/postbot\///' $PB_CONFIG_FILE
 	sed -i "s/YOURDOMAIN/$PB_URL/" $PB_CONFIG_FILE
 fi
