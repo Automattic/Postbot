@@ -140,9 +140,16 @@ class Postbot_Post {
 
 			if ( !is_wp_error( $result ) ) {
 				$post = $this->extract_post_from_api( $result );
+				if ( !is_wp_error( $post ) ) {
 
-				if ( !is_wp_error( $post ) && stripos( $this->post_data['content'], '[image]' ) !== false )
-					$this->replace_image( $access_token, $post );
+					if ( stripos( $this->post_data['content'], '[image]' ) !== false ) {
+						$this->replace_image( $access_token, $post );
+					}
+
+					## TODO: use setting to trigger featured image
+					## TODO: be nice to combine with above to only do 1 API call
+					$this->set_featured_image( $access_token, $post );
+				}
 			}
 			else
 				$post = $result;
@@ -163,6 +170,11 @@ class Postbot_Post {
 		$client->update_post( $this->blog_id, $existing_post['post_id'], array( 'content' => $content ) );
 	}
 
+	private function set_featured_image( $access_token, $post ) {
+		$client = new WPCOM_Rest_Client( $access_token );
+		$rtn = $client->update_post( $this->blog_id, $post['post_id'], array( 'featured_image' => $post['attachment_id'] ) );
+	}
+
 	private function extract_post_from_api( $result ) {
 		$attachments = (array)$result->attachments;
 		if ( empty( $attachments ) ) {
@@ -180,6 +192,7 @@ class Postbot_Post {
 			'short'      => $result->short_URL,
 			'post_id'    => $result->ID,
 			'attachment' => $this->attachment->URL,
+			'attachment_id' => $this->attachment->ID,
 		);
 	}
 }
