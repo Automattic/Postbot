@@ -156,6 +156,13 @@ $scripts_js  = postbot_bundled_javascript();
 								</label>
 							</div>
 
+							<div id="featured-image">
+								<label>
+									<input type="checkbox" name="featured_image"/>
+									<?php _e( 'Set Featured Image' ); ?>
+								</label>
+							</div>
+
 						</div>
 
 					</div>

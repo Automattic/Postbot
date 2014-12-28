@@ -85,6 +85,7 @@ class Postbot_Post {
 	private $blog_id;
 	private $post_data = array();
 	private $attachment;
+	public $featured_image = false;
 
 	public function __construct( $blog_id, $title, $content, $tags ) {
 		$this->blog_id = $blog_id;
@@ -99,6 +100,9 @@ class Postbot_Post {
 
 		if ( stripos( $this->post_data['content'], '[image]' ) === false )
 			$this->post_data['content'] .= "\n[image]";
+
+		$this->featured_image = $featured_image;
+
 	}
 
 	private function get_media_name( $filename, $post_title ) {
@@ -146,13 +150,15 @@ class Postbot_Post {
 						$this->replace_image( $access_token, $post );
 					}
 
-					## TODO: use setting to trigger featured image
 					## TODO: be nice to combine with above to only do 1 API call
-					$this->set_featured_image( $access_token, $post );
+					if ( $this->featured_image ) {
+						$this->set_featured_image( $access_token, $post );
+					}
 				}
 			}
-			else
+			else {
 				$post = $result;
+			}
 
 			postbot_forget_photo( $local_copy );
 		}
@@ -359,6 +365,10 @@ class Postbot_Scheduler {
 
 			if ( $media ) {
 				$blog_post = new Postbot_Post( $blog->get_blog_id(), $post_title, $data['schedule_content'][$media_id], $data['schedule_tags'][$media_id] );
+
+				if ( isset( $data['featured_image'] ) && ( $data['featured_image'] ) ) {
+					$blog_post->featured_image = true;
+				}
 
 				$result = $blog_post->create_new_post( $blog->get_access_token(), $post_time->get_time( $pos ), $media, $blog->get_gmt_offset() );
 				if ( is_wp_error( $result ) )
