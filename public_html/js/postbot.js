@@ -160,6 +160,7 @@ function schedule_changed() {
 		data.minute         = parseInt( $( 'input[name=schedule_time_minute]').val(), 10 );
 		data.interval       = parseInt( $( 'select[name=schedule_interval]' ).val(), 10 );
 		data.ignore_weekend = $( 'input[name=ignore_weekend]' ).is( ':checked' ) ? 1 : 0;
+		data.featured_image = $( 'input[name=featured_image]' ).is( ':checked' ) ? 1 : 0;
 	}
 
 	$.post( postbot.ajax_url, data, function( response ) {
@@ -298,6 +299,7 @@ function setup_uploader() {
 			data.minute         = parseInt( $( 'input[name=schedule_time_minute]').val(), 10 );
 			data.interval       = parseInt( $( 'select[name=schedule_interval]' ).val(), 10 );
 			data.ignore_weekend = $( 'input[name=ignore_weekend]' ).is( ':checked' ) ? 1 : 0;
+			data.featured_image = $( 'input[name=featured_image]' ).is( ':checked' ) ? 1 : 0;
 		}
 
 		disable_form_elements( true );
