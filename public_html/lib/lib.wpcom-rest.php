@@ -23,6 +23,7 @@ class WPCOM_Rest_Client {
 		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $curl, CURLOPT_FAILONERROR, false );
 		curl_setopt( $curl, CURLOPT_SSL_VERIFYPEER, false );
+		curl_setopt( $curl, CURLOPT_SAFE_UPLOAD, false );
 
 		if ( $auth_header ) {
 			if ( is_string( $auth_header ) )
