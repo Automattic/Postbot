@@ -169,8 +169,8 @@ function handle_pre_upload( Postbot_User $user, array $media_items ) {
 
 			$new_data['id']   = $file['id'];
 			$new_data['html'] = str_replace( array( "\n", "\t" ), '', get_schedule_item_html( null, $time, $file_pos ) );
-			$new_data['html'] = str_replace( '[id]', $file['id'], $new_data['html'] );
-			$new_data['html'] = str_replace( '[filename]', $filename, $new_data['html'] );
+			$new_data['html'] = str_replace( '[id]', esc_attr( $file['id'] ), $new_data['html'] );
+			$new_data['html'] = str_replace( '[filename]', esc_attr( $filename ), $new_data['html'] );
 
 			$file_data[] = $new_data;
 		}
