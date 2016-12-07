@@ -101,8 +101,7 @@ class Postbot_Post {
 		if ( stripos( $this->post_data['content'], '[image]' ) === false )
 			$this->post_data['content'] .= "\n[image]";
 
-		$this->featured_image = $featured_image;
-
+		// $this->featured_image = $featured_image;
 	}
 
 	private function get_media_name( $filename, $post_title ) {
@@ -129,7 +128,7 @@ class Postbot_Post {
 		$local_copy = postbot_get_photo( $media->get_stored_name() );
 		if ( $local_copy ) {
 			$post_data = $this->post_data;
-			$post_data['media[]'] = '@'.$local_copy.';filename='.$this->get_media_name( $media->get_filename(), $this->post_data['title'] );
+			$post_data['media[]'] = new CURLFile( $local_copy );
 
 			if ( $time > time() + ( $gmt_offset * 60 * 60 ) ) {
 				$post_data['date'] = date( 'Y-m-d\TH:i:s', $time );
@@ -141,7 +140,6 @@ class Postbot_Post {
 			}
 
 			$result = $client->new_post( $this->blog_id, $post_data );
-
 			if ( !is_wp_error( $result ) ) {
 				$post = $this->extract_post_from_api( $result );
 				if ( !is_wp_error( $post ) ) {
@@ -184,7 +182,7 @@ class Postbot_Post {
 	private function extract_post_from_api( $result ) {
 		$attachments = (array)$result->attachments;
 		if ( empty( $attachments ) ) {
-			postbot_log_error( 0, 'Created a post with no attachment', print_r( $this, true ) );
+			postbot_log_error( 0, 'Created a post with no attachment', print_r( $this, true ).print_r( $result, true ) );
 			return new WP_Error( 'new-post', __( 'Unable to create a post with image' ) );
 		}
 
